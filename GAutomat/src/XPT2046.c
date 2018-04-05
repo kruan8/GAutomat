@@ -76,6 +76,7 @@ uint16_t Read_Y(void)
 {
   XPT2046_CS_ENABLE;
   XPT2046_CS_ENABLE;
+  XPT2046_CS_ENABLE;
   WR_CMD(CHY); 
   uint16_t curr_Y = RD_AD();
   XPT2046_CS_DISABLE;

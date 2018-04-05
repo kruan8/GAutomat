@@ -67,7 +67,7 @@ void RTCF4_Init(void)
 #ifdef DEBUG
   uint32_t uwSynchPrediv = 8;
   uint32_t uwAsynchPrediv = 8;
-#elif
+#else
   uint32_t uwSynchPrediv = 0xFF;
   uint32_t uwAsynchPrediv = 0x7F;
 #endif

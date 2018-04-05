@@ -45,7 +45,7 @@ typedef enum
 
 app_re_e g_arrRelays[] = { app_re_light, app_re_heat, app_re_fan, app_re_reserved };
 
-app_config_t g_app_config;
+app_data_t g_appData;
 
 uint32_t g_nCheckLastTime;
 uint32_t g_nLedOffCounter;
@@ -125,20 +125,20 @@ void App_Exec()
       RTCF4_Get(&dt);
       editData.nHour = dt.hour;
       editData.nMin = dt.min;
-      editData.nLightOn = g_app_config.light_on;
-      editData.nLightOff = g_app_config.light_off;
-      editData.nTemperature = g_app_config.temperature;
-      editData.nTemperatureMax = g_app_config.temp_max;
+      editData.nLightOn = g_appData.light_on;
+      editData.nLightOff = g_appData.light_off;
+      editData.nTemperature = g_appData.temperature;
+      editData.nTemperatureMax = g_appData.temp_max;
       if (Wnd_CreateWindowEdit(&editData))
       {
         dt.hour = editData.nHour;
         dt.min = editData.nMin;
         RTCF4_Set(&dt, false, true);
 
-        g_app_config.light_on = editData.nLightOn;
-        g_app_config.light_off = editData.nLightOff;
-        g_app_config.temperature = editData.nTemperature;
-        g_app_config.temp_max = editData.nTemperatureMax;
+        g_appData.light_on = editData.nLightOn;
+        g_appData.light_off = editData.nLightOff;
+        g_appData.temperature = editData.nTemperature;
+        g_appData.temp_max = editData.nTemperatureMax;
         App_SaveConfig();
       }
     }
@@ -146,35 +146,38 @@ void App_Exec()
     return;
   }
 
+}
+
+void App_RegulationLoop(app_measure_data_t* data)
+{
   // provedeme regulace
   g_nCheckLastTime = Timer_GetTicks_ms();
 
-  wnd_main_data_t data;
-  memset(&data, 0, sizeof(data));
+  memset(data, 0, sizeof(wnd_main_data_t));
 
   dht_data_t dht_data;
   if (DHT_GetData(&dht_data) != DHT_OK)
   {
     // nastavit chybu mereni teploty
-    data.nError = err_dht;
+    data->nError = err_dht;
   }
 
   dht_data.Temp /= 10;
 
-  data.nTemperature = dht_data.Temp;
-  data.nHumidity = dht_data.Hum;
+  data->nTemperature = dht_data.Temp;
+  data->nHumidity = dht_data.Hum;
 
   uint8_t nReState = 0;
 
   // vystupy se spinaji proti napajeni -> takze relatka neguji
-  if (data.nError != err_dht)
+  if (data->nError != err_dht)
   {
     // temperature check
-    if (dht_data.Temp < g_app_config.temperature)
+    if (dht_data.Temp < g_appData.temperature)
     {
       nReState |= (1 << app_re_pos_heat);
       GPIO_GetPort(app_re_heat)->BSRRH = GPIO_GetPin(app_re_heat); // reset (rele ON)
-      data.bHeat = true;
+      data->bHeat = true;
     }
     else
     {
@@ -182,11 +185,11 @@ void App_Exec()
     }
 
     // max temperature check
-    if (dht_data.Temp > g_app_config.temp_max)
+    if (dht_data.Temp > g_appData.temp_max)
     {
       nReState |= (1 << app_re_pos_fan);
       GPIO_GetPort(app_re_fan)->BSRRH = GPIO_GetPin(app_re_fan); // reset (rele ON)
-      data.bFan = true;
+      data->bFan = true;
     }
     else
     {
@@ -197,18 +200,18 @@ void App_Exec()
   // light check
   rtc_record_time_t dt;
   RTCF4_Get(&dt);
-  data.nHour = dt.hour;
-  data.nMin = dt.min;
+  data->nHour = dt.hour;
+  data->nMin = dt.min;
   uint8_t nHour = dt.hour;
-  uint8_t nOn = g_app_config.light_on;
-  uint8_t nOff = g_app_config.light_off;
+  uint8_t nOn = g_appData.light_on;
+  uint8_t nOff = g_appData.light_off;
   bool bInvers = false;
 
   // zjistime, jestli interval prechazi do druheho ne
   if (nOff < nOn)
   {
-    nOn = g_app_config.light_off;
-    nOff = g_app_config.light_on;
+    nOn = g_appData.light_off;
+    nOff = g_appData.light_on;
     bInvers = true;
   }
 
@@ -216,15 +219,12 @@ void App_Exec()
   {
     nReState |= (1 << app_re_pos_light);
     GPIO_GetPort(app_re_light)->BSRRH = GPIO_GetPin(app_re_light); // reset (rele ON)
-    data.bLight = true;
+    data->bLight = true;
   }
   else
   {
     GPIO_GetPort(app_re_light)->BSRRL = GPIO_GetPin(app_re_light); // set (rele OFF)
   }
-
-  WindowMain(&data);
-
 }
 
 void App_Calibrate()
@@ -266,33 +266,33 @@ void App_Calibrate()
 
   if (bCalibration)
   {
-    Wnd_Calibrate(&g_app_config.lcd[0], bMessage);
+    Wnd_Calibrate(&g_appData.lcd[0], bMessage);
     App_SaveConfig();
   }
 
-  Wnd_SetCalibration(&g_app_config.lcd[0]);
+  Wnd_SetCalibration(&g_appData.lcd[0]);
 }
 
-app_config_t* App_GetConfig()
+app_data_t* App_GetConfig()
 {
 
-  return &g_app_config;
+  return &g_appData;
 }
 
 void App_SetConfigDefault()
 {
-  g_app_config.light_on = 18;
-  g_app_config.light_off = 6;
-  g_app_config.temperature = 18;
-  g_app_config.temp_max = 28;
+  g_appData.light_on = 18;
+  g_appData.light_off = 6;
+  g_appData.temperature = 18;
+  g_appData.temp_max = 28;
 
   App_SaveConfig();
 }
 
 bool App_LoadConfig()
 {
-  uint8_t nSize = sizeof(app_config_t) / sizeof(uint32_t);
-  uint32_t *pData = (uint32_t*)&g_app_config;
+  uint8_t nSize = sizeof(app_data_t) / sizeof(uint32_t);
+  uint32_t *pData = (uint32_t*)&g_appData;
   uint32_t nIndex = BACKUP_RAM_ADDR;
 
   while (nSize--)
@@ -301,9 +301,9 @@ bool App_LoadConfig()
     pData++;
   }
 
-  nSize = sizeof (g_app_config) - sizeof (g_app_config.crc);
-  uint32_t crc = App_CountCRC32HW((uint8_t*)&g_app_config, nSize);
-  if (crc != g_app_config.crc)
+  nSize = sizeof (g_appData) - sizeof (g_appData.crc);
+  uint32_t crc = App_CountCRC32HW((uint8_t*)&g_appData, nSize);
+  if (crc != g_appData.crc)
   {
     return false;
   }
@@ -313,13 +313,13 @@ bool App_LoadConfig()
 
 void App_SaveConfig()
 {
-  uint8_t nSize = sizeof (g_app_config) - sizeof (g_app_config.crc);
-  g_app_config.crc = App_CountCRC32HW((uint8_t*)&g_app_config, nSize);
+  uint8_t nSize = sizeof (g_appData) - sizeof (g_appData.crc);
+  g_appData.crc = App_CountCRC32HW((uint8_t*)&g_appData, nSize);
 
   PWR_BackupAccessCmd(ENABLE);
 
-  nSize = sizeof(app_config_t) / sizeof(uint32_t);
-  uint32_t *pData = (uint32_t*)&g_app_config;
+  nSize = sizeof(app_data_t) / sizeof(uint32_t);
+  uint32_t *pData = (uint32_t*)&g_appData;
   uint32_t nIndex = BACKUP_RAM_ADDR;
   while (nSize--)
   {
@@ -343,4 +343,48 @@ uint32_t App_CountCRC32HW(uint8_t* buffer, uint16_t size)
   uint32_t crc = (uint32_t) (CRC->DR);
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_CRC, DISABLE);
   return crc;
+}
+
+uint8_t App_GetLightOn()
+{
+  return g_appData.light_on;
+}
+
+bool App_SetLightOn(uint8_t nValue)
+{
+  g_appData.light_on = nValue;
+  return true;
+}
+
+uint8_t App_GetLightOff()
+{
+  return g_appData.light_off;
+}
+
+bool App_SetLightOff(uint8_t nValue)
+{
+  g_appData.light_off = nValue;
+  return true;
+}
+
+uint8_t App_GetTemperature()
+{
+  return g_appData.temperature;
+}
+
+bool App_SetTemperature(uint8_t nValue)
+{
+  g_appData.temperature = nValue;
+  return true;
+}
+
+uint8_t App_GetTemperatureMax()
+{
+  return g_appData.temp_max;
+}
+
+bool App_SetTemperatureMax(uint8_t nValue)
+{
+  g_appData.temp_max = nValue;
+  return true;
 }

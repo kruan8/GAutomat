@@ -22,11 +22,12 @@ bool g_bExit = false;
 bool g_bWndResult;
 wnd_main_data_t g_lastData;
 
-Coordinate  g_CrossPosition[3] = { {30, 45}, {290, 45}, {160, 210} };
+const Coordinate  g_CrossPosition[3] = { {32, 24}, {288, 120}, {160, 216} };
 
 char g_strVersion[] = { __DATE__ };
 
 UG_WINDOW*       g_pActiveWindow;
+
 
 void Wnd_Init()
 {
@@ -145,7 +146,10 @@ bool Wnd_CreateWindow(wnd_window_t* pWindowTemplate, uint8_t nControls)
   UG_BUTTON bt[nButtonCount];
   char btnText[nButtonCount][WND_BUTTON_TEXT_MAX];  // prostor pro text buttonu (10 znaku/button)
 
-  UG_WindowCreate(&winEdit, objBuffWndEdit, nControls, pWindowTemplate->CallBack);
+  UG_WindowCreate(&winEdit, objBuffWndEdit, nControls, pWindowTemplate->EventCallBack);
+  UG_WindowSetStyle(&winEdit, pWindowTemplate->nStyle);
+  UG_WindowSetBackColor(&winEdit, pWindowTemplate->nBackColor);
+
   UG_WindowSetTitleText (&winEdit, pWindowTemplate->pCaption);
   UG_WindowSetTitleTextFont (&winEdit, &TEXT_NORMAL);
   UG_WindowSetTitleTextAlignment(&winEdit, ALIGN_CENTER);
@@ -266,14 +270,14 @@ bool Wnd_Calibrate(Coordinate* pScreenSamples, bool bEnableMessage)
     pScreenSamples[i].y = pCoo->y;
   }
 
-  XPT2046_SetCalibrationMatrix(&g_CrossPosition[0], pScreenSamples);
+  XPT2046_SetCalibrationMatrix((Coordinate*) &g_CrossPosition[0], pScreenSamples);
   UG_FillScreen(C_BLACK);
   return true;
 }
 
 void Wnd_SetCalibration(Coordinate* pScreenSamples)
 {
-  XPT2046_SetCalibrationMatrix(&g_CrossPosition[0], pScreenSamples);
+  XPT2046_SetCalibrationMatrix((Coordinate*) &g_CrossPosition[0], pScreenSamples);
 }
 
 void Wnd_CreateTextBox(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_TEXTBOX* pTextbox)

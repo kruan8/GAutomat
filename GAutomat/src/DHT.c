@@ -5,6 +5,10 @@
  *      Author: priesolv
  */
 
+/*
+ * driver pro ctreni tpeloty a vlhkosti z cidla DHT11 a DHT22 (AM2302)
+ * driver pouziva casovac DHT_TIM pro presne odmerovani delky impulsu
+ */
 
 #include "DHT.h"
 
@@ -138,6 +142,22 @@ dht_error_e DHT_Read(dht_data_t* data)
     return DHT_PARITY_ERROR;
   }
 
+#if (DHT22_AM2302 == 1)
+
+  /* Set humidity */
+  data->Hum = ((buff[0] << 8) + buff[1]) / 10;
+
+  /* Negative temperature */
+  if (buff[2] & 0x80)
+  {
+    data->Temp = -((buff[2] & 0x7F) << 8) + buff[3];
+  }
+  else
+  {
+    data->Temp = (buff[2] << 8) + buff[3];
+  }
+#else
+
   /* Set humidity */
   data->Hum = buff[0]; // << 8 | d[1];
 
@@ -150,7 +170,7 @@ dht_error_e DHT_Read(dht_data_t* data)
   {
     data->Temp = (buff[2]) * 10 + buff[3];
   }
-
+#endif
   return DHT_OK;
 }
 

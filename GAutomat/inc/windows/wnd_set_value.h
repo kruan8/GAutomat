@@ -12,8 +12,12 @@
 #include "common.h"
 #include "Windows.h"
 
+wnd_window_t* WndSetValue_GetTemplate();
+void WndSetValue_Init();
 uint16_t Wnd_CreateWindowSetValue(uint16_t nValue, char* pName);
 uint16_t Wnd_GetEditedValue();
 void WindowSetValue_Callback(UG_MESSAGE *msg);
+
+void WndSetValue_SetValue(uint8_t* pnValue, char* strName);
 
 #endif /* WINDOWS_WND_SET_VALUE_H_ */

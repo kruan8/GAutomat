@@ -29,12 +29,14 @@ typedef struct
 
 typedef enum
 {
-  wnd_textbox = 0,
+  wnd_none = 0,
+  wnd_textbox,
   wnd_button,
 }wnd_ctrl_type_e;
 
 typedef struct
 {
+  wnd_ctrl_type_e eType;
   uint16_t left;
   uint16_t top;
   uint16_t right;
@@ -43,22 +45,28 @@ typedef struct
   uint8_t alignment;
   uint16_t text_color;
   const UG_FONT* font;
-  wnd_ctrl_type_e eType;
   const char* pText;
 }wnd_control;
 
 typedef struct
 {
+  uint8_t nStyle;
+  UG_COLOR nBackColor;
   const wnd_control* pControls;
   char* pCaption;
-  void (*CallBack)( UG_MESSAGE* );
+  void (*Init)();
+  void (*EventCallBack)( UG_MESSAGE* );
+  void (*TimerCallBack)();
+  void (*ExecCallBack)();
+  void (*ExitClickCallBack)();
 }wnd_window_t;
 
 #define TEXT_NORMAL   FONT_12X20
 #define TEXT_BIG      FONT_24X40
 #define TEXT_MAX      TEXT_BIG
 
-#define WND_BUTTON_TEXT_MAX  (9 + 1)  // + ukoncovaci 0
+#define WND_BUTTON_TEXT_MAX  (10)  // + ukoncovaci 0
+#define WND_TEXTBOX_TEXT_MAX  (20)  // + ukoncovaci 0
 
 void Wnd_Init();
 

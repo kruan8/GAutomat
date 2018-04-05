@@ -22,6 +22,9 @@
 
 #include "rtcf4.h"
 
+#include "wnd_manager.h"
+#include "windows/wnd_start.h"
+#include "windows/wnd_main.h"
 
 
 int main(void)
@@ -47,10 +50,15 @@ int main(void)
   // kontrola TOUCH click -> kalibrace
   App_Calibrate();
 
-  while(1)
-  {
-    App_Exec();
-  }
+  Wm_Init();
+  Wm_AddNewWindow(WndMain_GetTemplate());
+
+  Wm_Exec();
+
+//  while(1)
+//  {
+//    App_Exec();
+//  }
 }
 
 

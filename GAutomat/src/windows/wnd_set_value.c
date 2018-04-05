@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "wnd_manager.h"
 
 typedef enum
 {
@@ -26,39 +27,64 @@ typedef enum
 
 const wnd_control arrSetControls[] =
 {
-  // left | top | right | bott |     id           |  alignment  | tcolor  |    font     |  type      | text
-    {  50,   40,    250,    70, edit_tb_name,       ALIGN_CENTER,  C_BLACK, &TEXT_NORMAL, wnd_textbox, NULL },
-    {  95,  100,    135,   130, edit_bt_minus,                 0,   C_BLUE, &TEXT_NORMAL, wnd_button,  "-" },
-    { 145,  100,    195,   130, edit_tb_value,      ALIGN_CENTER,    C_RED, &TEXT_NORMAL, wnd_textbox, NULL },
-    { 200,  100,    240,   130, edit_bt_plus,                  0,   C_BLUE, &TEXT_NORMAL, wnd_button,  "+" },
+  //   type      |left | top | right | bott |     id        |  alignment  | tcolor  |    font     | text
+    { wnd_textbox,  50,   40,    250,    70, edit_tb_name,    ALIGN_CENTER,  C_BLACK, &TEXT_NORMAL, NULL },
+    { wnd_button,   95,  100,    135,   130, edit_bt_minus,              0,   C_BLUE, &TEXT_NORMAL, "-" },
+    { wnd_textbox, 145,  100,    195,   130, edit_tb_value,   ALIGN_CENTER,    C_RED, &TEXT_NORMAL, NULL },
+    { wnd_button,  200,  100,    240,   130, edit_bt_plus,               0,   C_BLUE, &TEXT_NORMAL, "+" },
 
-    {  40,   160,   150,   190, edit_bt_cancel,                0,   C_BLUE, &TEXT_NORMAL, wnd_button,  "Storno" },
-    { 195,   160,   275,   190, edit_bt_ok,                    0,   C_BLUE, &TEXT_NORMAL, wnd_button,  "OK" },
+    { wnd_button,   40,   160,   150,   190, edit_bt_cancel,             0,   C_BLUE, &TEXT_NORMAL, "Storno" },
+    { wnd_button,  195,   160,   275,   190, edit_bt_ok,                 0,   C_BLUE, &TEXT_NORMAL, "OK" },
+    {   wnd_none,    0,     0,     0,     0,          0,                 0,   C_BLUE, &TEXT_NORMAL, "" },
 };
 
-const wnd_window_t wndSet =
+const wnd_window_t wndSetValue =
 {
+    WND_STYLE_2D | WND_STYLE_SHOW_TITLE,
+    0xEF7D,
     (wnd_control*)&arrSetControls,
     "Zmena hodnoty",
+    WndSetValue_Init,
     WindowSetValue_Callback,
+    NULL,
+    NULL,
+    NULL,
 };
 
-uint16_t g_nValue;
-char* g_pName;
+uint8_t* g_pnValue;
+uint8_t  g_nValue;
+char* g_strName;
 char g_strValueText[WND_BUTTON_TEXT_MAX];
 
-uint16_t Wnd_CreateWindowSetValue(uint16_t nValue, char* pName)
+wnd_window_t* WndSetValue_GetTemplate()
 {
-  g_nValue = nValue;
-  g_pName = pName;
-  uint8_t nControls = sizeof(arrSetControls) / sizeof(wnd_control);
-  return Wnd_CreateWindow((wnd_window_t*)&wndSet, nControls);
+  return (wnd_window_t*) &wndSetValue;
 }
 
-uint16_t Wnd_GetEditedValue()
+void WndSetValue_Init()
 {
-  return g_nValue;
+
 }
+
+void WndSetValue_SetValue(uint8_t* pnValue, char* strName)
+{
+  g_pnValue = pnValue;
+  g_nValue = *pnValue;
+  g_strName = strName;
+}
+
+//uint16_t WndSetValue_CreateWindowSetValue(uint16_t nValue, char* pName)
+//{
+////  g_nValue = nValue;
+////  g_pName = pName;
+////  uint8_t nControls = sizeof(arrSetControls) / sizeof(wnd_control);
+////  return Wnd_CreateWindow((wnd_window_t*)&wndSetValue, nControls);
+//}
+
+//uint16_t Wnd_GetEditedValue()
+//{
+//  return g_nValue;
+//}
 
 void WindowSetValue_Callback(UG_MESSAGE *msg)
 {
@@ -73,7 +99,7 @@ void WindowSetValue_Callback(UG_MESSAGE *msg)
         Wnd_SetTextboxFormInt(Wnd_GetWindow(), edit_tb_value, g_nValue);
         break;
       case edit_bt_minus:
-        if (g_nValue)
+        if (g_pnValue)
         {
           g_nValue--;
           Wnd_SetTextboxFormInt(Wnd_GetWindow(), edit_tb_value, g_nValue);
@@ -81,12 +107,10 @@ void WindowSetValue_Callback(UG_MESSAGE *msg)
 
         break;
       case edit_bt_ok:
-        Wnd_SetResult(true);
-        Wnd_Exit();
+        Wm_CloseWindow();
         break;
       case edit_bt_cancel:
-        Wnd_SetResult(false);
-        Wnd_Exit();
+        Wm_CloseWindow();
         break;
       }
     }
@@ -97,12 +121,12 @@ void WindowSetValue_Callback(UG_MESSAGE *msg)
     switch (msg->sub_id)
     {
     case edit_tb_name:
-      UG_TextboxSetText(Wnd_GetWindow(), edit_tb_name, g_pName);
+      UG_TextboxSetText(Wm_GetWnd(), edit_tb_name, g_strName);
       break;
     case edit_tb_value:
       {
-        UG_TextboxSetText(Wnd_GetWindow(), edit_tb_value, g_strValueText);
-        Wnd_SetTextboxFormInt(Wnd_GetWindow(), edit_tb_value, g_nValue);
+        UG_TextboxSetText(Wm_GetWnd(), edit_tb_value, g_strValueText);
+        Wnd_SetTextboxFormInt(Wm_GetWnd(), edit_tb_value, *g_pnValue);
       }
       break;
     default:
