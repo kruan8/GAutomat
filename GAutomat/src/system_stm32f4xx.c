@@ -868,7 +868,7 @@ static void SetSysClock(void)
 //  RCC->CFGR |= RCC_CFGR_SW_HSI;
   
   /* Wait till the main PLL is used as system clock source */
-  while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL); // RCC_CFGR_SWS_HSI)
+  while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL) // RCC_CFGR_SWS_HSI)
   {
   }
 #endif /* USE_HSE_BYPASS */  
