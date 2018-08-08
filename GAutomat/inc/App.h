@@ -1,3 +1,4 @@
+
 /*
  * App.h
  *
@@ -15,6 +16,7 @@
 typedef struct
 {
   Coordinate lcd[3];  // kalibracni udaje touch screenu
+  bool    lcd_calibrated;
   uint8_t light_on;
   uint8_t light_off;
   uint8_t temperature;

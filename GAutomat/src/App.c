@@ -50,6 +50,7 @@ app_data_t g_appData;
 uint32_t g_nCheckLastTime;
 uint32_t g_nLedOffCounter;
 
+
 void App_Init()
 {
   PWR_BackupRegulatorCmd(ENABLE);
@@ -229,7 +230,7 @@ void App_RegulationLoop(app_measure_data_t* data)
 
 void App_Calibrate()
 {
-  bool bCalibration = false;
+  bool bCalibEnable = false;
   bool bMessage = false;
 
   uint32_t nStartTime = Timer_GetTicks_ms();
@@ -237,7 +238,7 @@ void App_Calibrate()
   {
     if (XPT2046_Press())
     {
-      bCalibration = true;
+      bCalibEnable = true;
       break;
     }
   }
@@ -260,13 +261,13 @@ void App_Calibrate()
   if (!App_LoadConfig())
   {
     App_SetConfigDefault();
-    bCalibration = true;
     bMessage = true;
   }
 
-  if (bCalibration)
+  if (bCalibEnable)
   {
     Wnd_Calibrate(&g_appData.lcd[0], bMessage);
+    g_appData.lcd_calibrated = true;
     App_SaveConfig();
   }
 
@@ -286,6 +287,7 @@ void App_SetConfigDefault()
   g_appData.temperature = 18;
   g_appData.temp_max = 28;
 
+  g_appData.lcd_calibrated = false;
   App_SaveConfig();
 }
 

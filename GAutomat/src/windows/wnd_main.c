@@ -94,6 +94,16 @@ void WndMain_Exec()
   app_measure_data_t data;
   App_RegulationLoop(&data);
 
+  // pokud neni zkalibrovany display, vykreslit znacku
+  if (!App_GetConfig()->lcd_calibrated)
+  {
+    UG_FillFrame(0, 0, 319, 10, C_RED);
+  }
+  else
+  {
+    UG_FillFrame(0, 0, 319, 10, C_BLACK);
+  }
+
   char* text;
   text = UG_TextboxGetText(Wm_GetWnd(), main_tb_time);
   snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%02d:%02d", data.nHour, data.nMin);
