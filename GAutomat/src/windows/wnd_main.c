@@ -18,6 +18,7 @@
   #define REGULATION_LOOP_MS   10000
 #endif
 
+#define WND_MAIN_ICON_SIZE      64
 
 typedef enum
 {
@@ -37,6 +38,7 @@ const wnd_control arrMainControls[] =
 
 uint32_t g_nMeasureTimer;
 bool     g_bRegulation;
+app_measure_data_t g_lastData;
 
 const wnd_window_t wndMain =
 {
@@ -104,22 +106,32 @@ void WndMain_Exec()
     UG_FillFrame(0, 0, 319, 10, C_BLACK);
   }
 
+  // vypis casu
   char* text;
   text = UG_TextboxGetText(Wm_GetWnd(), main_tb_time);
   snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%02d:%02d", data.nHour, data.nMin);
   UG_TextboxSetText(Wm_GetWnd(), main_tb_time, text);
 
-  if (data.nError != 1)  // chyba teploty
+  // vypis teploty a vlhkosti
+  if (data.nError != 1)
   {
-    text = UG_TextboxGetText(Wm_GetWnd(), main_tb_temp);
-    snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%2d\370C", data.nTemperature);
-    UG_TextboxSetText(Wm_GetWnd(), main_tb_temp, text);
+    if (data.nTemperature != g_lastData.nTemperature)
+    {
+      text = UG_TextboxGetText(Wm_GetWnd(), main_tb_temp);
+      snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%2d\370C", data.nTemperature);
+      UG_TextboxSetText(Wm_GetWnd(), main_tb_temp, text);
+      g_lastData.nTemperature = data.nTemperature;
+    }
 
-    text = UG_TextboxGetText(Wm_GetWnd(), main_tb_hum);
-    snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%2d %%", data.nHumidity);
-    UG_TextboxSetText(Wm_GetWnd(), main_tb_hum, text);
+    if (data.nHumidity != g_lastData.nHumidity)
+    {
+      text = UG_TextboxGetText(Wm_GetWnd(), main_tb_hum);
+      snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%2d %%", data.nHumidity);
+      UG_TextboxSetText(Wm_GetWnd(), main_tb_hum, text);
+      g_lastData.nHumidity = data.nHumidity;
+    }
   }
-  else if (data.nError == 1)
+  else if (data.nError == 1)   // chyba teploty
   {
     text = UG_TextboxGetText(Wm_GetWnd(), main_tb_temp);
     snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "--\370C");
@@ -128,6 +140,51 @@ void WndMain_Exec()
     text = UG_TextboxGetText(Wm_GetWnd(), main_tb_hum);
     snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "-- %%");
     UG_TextboxSetText(Wm_GetWnd(), main_tb_hum, text);
+  }
+
+  // vykresleni symbolu LIGHT
+  if (data.bLight != g_lastData.bLight)
+  {
+    if (data.bLight)
+    {
+      DrawSun(55, 195, yellow);
+      g_lastData.bLight = true;
+    }
+    else
+    {
+      DrawSun(55, 195, C_BLACK);
+      g_lastData.bLight = false;
+    }
+  }
+
+  // vykresleni symbolu HEAT
+  if (data.bHeat != g_lastData.bHeat)
+  {
+    if (data.bHeat)
+    {
+      DrawHeat(158, 195, red);
+      g_lastData.bHeat = true;
+    }
+    else
+    {
+      DrawHeat(158, 195, C_BLACK);
+      g_lastData.bHeat = false;
+    }
+  }
+
+  // vykresleni symbolu FAN
+  if (data.bFan != g_lastData.bFan)
+  {
+    if (data.bFan)
+    {
+      DrawFan(255, 195, blue);
+      g_lastData.bFan = true;
+    }
+    else
+    {
+      DrawFan(255, 195, C_BLACK);
+      g_lastData.bFan = false;
+    }
   }
 
   g_bRegulation = false;

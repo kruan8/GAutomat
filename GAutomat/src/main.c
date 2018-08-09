@@ -26,6 +26,7 @@
 #include "windows/wnd_start.h"
 #include "windows/wnd_main.h"
 
+// Todo: implementobvat WATCHDOG
 
 int main(void)
 {
