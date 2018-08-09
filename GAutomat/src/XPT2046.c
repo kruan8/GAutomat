@@ -205,7 +205,7 @@ bool XPT2046_Press(void)
   // cekani na uvolneni
   if (bResult)
   {
-    uint8_t nCheckTime = Timer_GetTicks_ms();
+    uint32_t nCheckTime = Timer_GetTicks_ms();
     while (true)
     {
       if (!read_IRQ())
