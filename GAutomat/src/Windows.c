@@ -180,13 +180,13 @@ bool Wnd_CreateWindow(wnd_window_t* pWindowTemplate, uint8_t nControls)
 
   while(!g_bExit)
   {
-    if (XPT2046_Press())
+    if (XPT2046_Delay())
     {
       Coordinate Display;
       Coordinate* pCoo = Read_XPT2046();
       getDisplayPoint(&Display, pCoo);
       UG_TouchUpdate (Display.x, Display.y, TOUCH_STATE_PRESSED);
-      while (XPT2046_Press());  // cekat na uvolneni
+      while (XPT2046_Delay());  // cekat na uvolneni
     }
     else
     {

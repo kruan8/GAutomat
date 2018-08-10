@@ -180,7 +180,8 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
   // smycka zprav
   while(!g_bClose)
   {
-    if (XPT2046_Press())
+    Coordinate* pCoo = Read_XPT2046();
+    if (pCoo)
     {
       if (g_bEndClick)
       {
@@ -193,10 +194,8 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
       }
 
       Coordinate Display;
-      Coordinate* pCoo = Read_XPT2046();
       getDisplayPoint(&Display, pCoo);
       UG_TouchUpdate (Display.x, Display.y, TOUCH_STATE_PRESSED);
-      while (XPT2046_Press());  // cekat na uvolneni
     }
     else
     {

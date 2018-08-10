@@ -19,7 +19,9 @@
 #define CHX   0x92
 #define CHY   0xD2
 
-#define XPT2046_AD_SAMPLES    10
+#define XPT2046_AD_SAMPLES       10
+
+#define XPT2046_PRESS_DELAY_MS   200
 
 /* Private variables ---------------------------------------------------------*/
 static Matrix      matrix;
@@ -127,6 +129,13 @@ Coordinate *Read_XPT2046(void)
       screen.y = tempY >> 3;
     }
 
+    if (pXPT2046ClickCallback)
+    {
+      pXPT2046ClickCallback();
+    }
+
+    XPT2046_Delay();
+
     return &screen;
   }
 
@@ -198,7 +207,7 @@ static bool read_IRQ(void)
   return XPT2046_IRQ_GPIO_PORT->IDR & XPT2046_IRQ_PIN;
 }
 
-bool XPT2046_Press(void)
+bool XPT2046_Delay(void)
 {
   bool bResult = !read_IRQ();
 
@@ -213,15 +222,10 @@ bool XPT2046_Press(void)
         nCheckTime = Timer_GetTicks_ms();
       }
 
-      if (Timer_GetTicks_ms() > nCheckTime + 300)
+      if (Timer_GetTicks_ms() > nCheckTime + XPT2046_PRESS_DELAY_MS)
       {
         break;
       }
-    }
-
-    if (pXPT2046ClickCallback)
-    {
-      return pXPT2046ClickCallback();
     }
   }
 

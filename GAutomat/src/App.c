@@ -119,7 +119,7 @@ void App_Exec()
   if (Timer_GetTicks_ms() < g_nCheckLastTime + APP_CHECK_INTERVAL_MS)
   {
     // Todo: a cekat na uvolneni
-    if (XPT2046_Press())
+    if (XPT2046_Delay())
     {
       wnd_edit_data_t editData;
       rtc_record_time_t dt;
@@ -236,27 +236,12 @@ void App_Calibrate()
   uint32_t nStartTime = Timer_GetTicks_ms();
   while (Timer_GetTicks_ms() < nStartTime + 2000)
   {
-    if (XPT2046_Press())
+    if (XPT2046_Delay())
     {
       bCalibEnable = true;
       break;
     }
   }
-
-//  // cekani na uvolneni
-//  uint8_t nCheckTime = Timer_GetTicks_ms();
-//  while (true)
-//  {
-//    if (XPT2046_Press())
-//    {
-//      nCheckTime = Timer_GetTicks_ms();
-//    }
-//
-//    if (Timer_GetTicks_ms() > nCheckTime + 300)
-//    {
-//      break;
-//    }
-//  }
 
   if (!App_LoadConfig())
   {
