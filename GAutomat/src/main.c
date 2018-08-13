@@ -26,13 +26,27 @@
 #include "windows/wnd_start.h"
 #include "windows/wnd_main.h"
 
-// Todo: implementobvat WATCHDOG
+/*
+ * v0.0 -
+ *
+ *
+ */
 
 int main(void)
 {
   // kontrola hodin
   RCC_ClocksTypeDef RCC_Clocks;
   RCC_GetClocksFreq(&RCC_Clocks); // Get system clocks
+
+  // Todo: implementobvat WATCHDOG
+//  // Start Watchdog
+//  IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+//  IWDG_SetPrescaler(IWDG_Prescaler_64);      // 32kHz / 64
+//  IWDG_SetReload(0xFFF);                    //  WD interval 4096 ms
+//  IWDG_Enable();
+//  IWDG_WriteAccessCmd(IWDG_WriteAccess_Disable);
+//
+//  DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE);   // WD stop in debug mode
 
   Timer_Init();
   SPI1_Init();

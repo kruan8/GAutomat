@@ -11,6 +11,7 @@
 #include "App.h"
 #include "app_data.h"
 #include <stdio.h>
+#include <string.h>
 
 #ifdef DEBUG
   #define REGULATION_LOOP_MS    1000
@@ -62,6 +63,7 @@ void WndMain_Init()
 {
   Wm_SetEndClick();
   g_nMeasureTimer = 0;
+  memset (&g_lastData, 0, sizeof (g_lastData));
 }
 
 void WndMain_Callback(UG_MESSAGE *msg)

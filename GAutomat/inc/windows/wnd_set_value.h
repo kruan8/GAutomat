@@ -16,7 +16,7 @@ wnd_window_t* WndSetValue_GetTemplate();
 void WndSetValue_Init();
 uint16_t Wnd_CreateWindowSetValue(uint16_t nValue, char* pName);
 uint16_t Wnd_GetEditedValue();
-void WindowSetValue_Callback(UG_MESSAGE *msg);
+void WndSetValue_Callback(UG_MESSAGE *msg);
 
 void WndSetValue_SetValue(uint8_t* pnValue, char* strName);
 

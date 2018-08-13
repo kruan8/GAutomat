@@ -40,7 +40,7 @@ typedef bool(*PtrXPT2046ClickCallback) (void);
 
 void XPT2046_Init(void);
 void XPT2046_Calibrate(void);  // calibration routine
-bool XPT2046_Press(void);   // returns if a pressure is present
+bool XPT2046_Delay(void);   // returns if a pressure is present
 Coordinate *Read_XPT2046(void);  // returns coordinates of the pressure
 void XPT2046_GetAdXY(uint16_t *x, uint16_t *y);
 void XPT2046_SetClickCallback(PtrXPT2046ClickCallback pFunction);

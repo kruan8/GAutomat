@@ -180,13 +180,13 @@ bool Wnd_CreateWindow(wnd_window_t* pWindowTemplate, uint8_t nControls)
 
   while(!g_bExit)
   {
-    if (XPT2046_Press())
+    if (XPT2046_Delay())
     {
       Coordinate Display;
       Coordinate* pCoo = Read_XPT2046();
       getDisplayPoint(&Display, pCoo);
       UG_TouchUpdate (Display.x, Display.y, TOUCH_STATE_PRESSED);
-      while (XPT2046_Press());  // cekat na uvolneni
+      while (XPT2046_Delay());  // cekat na uvolneni
     }
     else
     {
@@ -303,11 +303,11 @@ void Wnd_SetButtonTextFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
   UG_ButtonSetText(pWnd, nId, pText);
 }
 
-void Wnd_SetTextboxFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
+void Wnd_SetTextboxFromInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
 {
-  char * pText = UG_TextboxGetText(Wnd_GetWindow(), nId);
+  char * pText = UG_TextboxGetText(pWnd, nId);
   snprintf(pText, WND_BUTTON_TEXT_MAX, "%lu", nValue);
-  UG_TextboxSetText(Wnd_GetWindow(), nId, pText);
+  UG_TextboxSetText(pWnd, nId, pText);
 }
 
 void DrawCross(uint16_t x, uint16_t y, uint16_t colorIn, uint16_t colorOut)

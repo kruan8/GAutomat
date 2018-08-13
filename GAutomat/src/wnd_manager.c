@@ -97,11 +97,6 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
   UG_WINDOW window;
   g_bClose = false;
 
-  if (pWndTemplate->Init)
-  {
-    pWndTemplate->Init();
-  }
-
   // alokace pro vsechny ovladaci prvky
   uint8_t nControls = 0;          // pocet controls
   uint8_t nTextboxCount = 0;
@@ -177,10 +172,16 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
 
   UG_WindowShow(&window);
 
+  if (pWndTemplate->Init)
+  {
+    pWndTemplate->Init();
+  }
+
   // smycka zprav
   while(!g_bClose)
   {
-    if (XPT2046_Press())
+    Coordinate* pCoo = Read_XPT2046();
+    if (pCoo)
     {
       if (g_bEndClick)
       {
@@ -193,10 +194,8 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
       }
 
       Coordinate Display;
-      Coordinate* pCoo = Read_XPT2046();
       getDisplayPoint(&Display, pCoo);
       UG_TouchUpdate (Display.x, Display.y, TOUCH_STATE_PRESSED);
-      while (XPT2046_Press());  // cekat na uvolneni
     }
     else
     {
@@ -209,6 +208,7 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
     }
 
     UG_Update();
+    IWDG_ReloadCounter();
   }
 
   return true;
