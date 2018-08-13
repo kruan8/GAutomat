@@ -303,11 +303,11 @@ void Wnd_SetButtonTextFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
   UG_ButtonSetText(pWnd, nId, pText);
 }
 
-void Wnd_SetTextboxFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
+void Wnd_SetTextboxFromInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
 {
-  char * pText = UG_TextboxGetText(Wnd_GetWindow(), nId);
+  char * pText = UG_TextboxGetText(pWnd, nId);
   snprintf(pText, WND_BUTTON_TEXT_MAX, "%lu", nValue);
-  UG_TextboxSetText(Wnd_GetWindow(), nId, pText);
+  UG_TextboxSetText(pWnd, nId, pText);
 }
 
 void DrawCross(uint16_t x, uint16_t y, uint16_t colorIn, uint16_t colorOut)

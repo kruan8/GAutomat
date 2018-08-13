@@ -145,10 +145,23 @@ void WindowEdit_Callback(UG_MESSAGE *msg)
         break;
       case edit_bt_light_on:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-//        WndSetValue_SetValue(&app_)
+        WndSetValue_SetValue(&App_GetConfig()->light_on, "Svetlo zap.");
         Wm_CloseWindow();
         break;
       case edit_bt_light_off:
+        Wm_AddNewWindow(WndSetValue_GetTemplate());
+        WndSetValue_SetValue(&App_GetConfig()->light_off, "Svetlo vyp.");
+        Wm_CloseWindow();
+        break;
+      case edit_bt_temp:
+        Wm_AddNewWindow(WndSetValue_GetTemplate());
+        WndSetValue_SetValue(&App_GetConfig()->temperature, "Teplota");
+        Wm_CloseWindow();
+        break;
+      case edit_bt_tempmax:
+        Wm_AddNewWindow(WndSetValue_GetTemplate());
+        WndSetValue_SetValue(&App_GetConfig()->temp_max, "Teplota max");
+        Wm_CloseWindow();
         break;
       }
 

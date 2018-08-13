@@ -13,29 +13,29 @@
 
 typedef enum
 {
-  edit_tb_name = 0,
-  edit_tb_value,
-}wnd_edit_tb_e;
+  set_tb_name = 0,
+  set_tb_value,
+}wnd_set_tb_e;
 
 typedef enum
 {
-  edit_bt_plus = 0,
-  edit_bt_minus,
-  edit_bt_ok,
-  edit_bt_cancel,
-}wnd_edit_bt_e;
+  set_bt_plus = 0,
+  set_bt_minus,
+  set_bt_ok,
+  set_bt_cancel,
+}wnd_set_bt_e;
 
 const wnd_control arrSetControls[] =
 {
-  //   type      |left | top | right | bott |     id        |  alignment  | tcolor  |    font     | text
-    { wnd_textbox,  50,   40,    250,    70, edit_tb_name,    ALIGN_CENTER,  C_BLACK, &TEXT_NORMAL, NULL },
-    { wnd_button,   95,  100,    135,   130, edit_bt_minus,              0,   C_BLUE, &TEXT_NORMAL, "-" },
-    { wnd_textbox, 145,  100,    195,   130, edit_tb_value,   ALIGN_CENTER,    C_RED, &TEXT_NORMAL, NULL },
-    { wnd_button,  200,  100,    240,   130, edit_bt_plus,               0,   C_BLUE, &TEXT_NORMAL, "+" },
+  //   type      |left | top | right | bott |     id        |  alignment  | tcolor  |    font    | text
+    { wnd_textbox,  50,   40,    250,    70, set_tb_name,    ALIGN_CENTER,  C_BLACK, &TEXT_NORMAL, NULL },
+    { wnd_button,   95,  100,    135,   130, set_bt_minus,              0,   C_BLUE, &TEXT_NORMAL, "-" },
+    { wnd_textbox, 145,  100,    195,   130, set_tb_value,   ALIGN_CENTER,    C_RED, &TEXT_NORMAL, NULL },
+    { wnd_button,  200,  100,    240,   130, set_bt_plus,               0,   C_BLUE, &TEXT_NORMAL, "+" },
 
-    { wnd_button,   40,   160,   150,   190, edit_bt_cancel,             0,   C_BLUE, &TEXT_NORMAL, "Storno" },
-    { wnd_button,  195,   160,   275,   190, edit_bt_ok,                 0,   C_BLUE, &TEXT_NORMAL, "OK" },
-    {   wnd_none,    0,     0,     0,     0,          0,                 0,   C_BLUE, &TEXT_NORMAL, "" },
+    { wnd_button,   40,   160,   150,   190, set_bt_cancel,             0,   C_BLUE, &TEXT_NORMAL, "Storno" },
+    { wnd_button,  195,   160,   275,   190, set_bt_ok,                 0,   C_BLUE, &TEXT_NORMAL, "OK" },
+    {   wnd_none,    0,     0,     0,     0,          0,                0,   C_BLUE, &TEXT_NORMAL, "" },
 };
 
 const wnd_window_t wndSetValue =
@@ -45,7 +45,7 @@ const wnd_window_t wndSetValue =
     (wnd_control*)&arrSetControls,
     "Zmena hodnoty",
     WndSetValue_Init,
-    WindowSetValue_Callback,
+    WndSetValue_Callback,
     NULL,
     NULL,
     NULL,
@@ -63,7 +63,9 @@ wnd_window_t* WndSetValue_GetTemplate()
 
 void WndSetValue_Init()
 {
-
+  UG_TextboxSetText(Wm_GetWnd(), set_tb_name, g_strName);
+  UG_TextboxSetText(Wm_GetWnd(), set_tb_value, g_strValueText);
+  Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
 }
 
 void WndSetValue_SetValue(uint8_t* pnValue, char* strName)
@@ -73,20 +75,12 @@ void WndSetValue_SetValue(uint8_t* pnValue, char* strName)
   g_strName = strName;
 }
 
-//uint16_t WndSetValue_CreateWindowSetValue(uint16_t nValue, char* pName)
-//{
-////  g_nValue = nValue;
-////  g_pName = pName;
-////  uint8_t nControls = sizeof(arrSetControls) / sizeof(wnd_control);
-////  return Wnd_CreateWindow((wnd_window_t*)&wndSetValue, nControls);
-//}
-
 //uint16_t Wnd_GetEditedValue()
 //{
 //  return g_nValue;
 //}
 
-void WindowSetValue_Callback(UG_MESSAGE *msg)
+void WndSetValue_Callback(UG_MESSAGE *msg)
 {
   if (msg->type == MSG_TYPE_OBJECT)
   {
@@ -94,22 +88,23 @@ void WindowSetValue_Callback(UG_MESSAGE *msg)
     {
       switch (msg->sub_id)
       {
-      case edit_bt_plus:
+      case set_bt_plus:
         g_nValue++;
-        Wnd_SetTextboxFormInt(Wnd_GetWindow(), edit_tb_value, g_nValue);
+        Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
         break;
-      case edit_bt_minus:
-        if (g_pnValue)
+      case set_bt_minus:
+        if (g_nValue)
         {
           g_nValue--;
-          Wnd_SetTextboxFormInt(Wnd_GetWindow(), edit_tb_value, g_nValue);
+          Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
         }
 
         break;
-      case edit_bt_ok:
+      case set_bt_ok:
+        *g_pnValue = g_nValue;
         Wm_CloseWindow();
         break;
-      case edit_bt_cancel:
+      case set_bt_cancel:
         Wm_CloseWindow();
         break;
       }
@@ -120,15 +115,15 @@ void WindowSetValue_Callback(UG_MESSAGE *msg)
   {
     switch (msg->sub_id)
     {
-    case edit_tb_name:
-      UG_TextboxSetText(Wm_GetWnd(), edit_tb_name, g_strName);
-      break;
-    case edit_tb_value:
-      {
-        UG_TextboxSetText(Wm_GetWnd(), edit_tb_value, g_strValueText);
-        Wnd_SetTextboxFormInt(Wm_GetWnd(), edit_tb_value, *g_pnValue);
-      }
-      break;
+//    case set_tb_name:
+//      UG_TextboxSetText(Wm_GetWnd(), set_tb_name, g_strName);
+//      break;
+//    case set_tb_value:
+//      {
+//        UG_TextboxSetText(Wm_GetWnd(), set_tb_value, g_strValueText);
+//        Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
+//      }
+//      break;
     default:
       break;
     }

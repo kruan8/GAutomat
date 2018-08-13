@@ -97,11 +97,6 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
   UG_WINDOW window;
   g_bClose = false;
 
-  if (pWndTemplate->Init)
-  {
-    pWndTemplate->Init();
-  }
-
   // alokace pro vsechny ovladaci prvky
   uint8_t nControls = 0;          // pocet controls
   uint8_t nTextboxCount = 0;
@@ -177,6 +172,11 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
 
   UG_WindowShow(&window);
 
+  if (pWndTemplate->Init)
+  {
+    pWndTemplate->Init();
+  }
+
   // smycka zprav
   while(!g_bClose)
   {
@@ -208,6 +208,7 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
     }
 
     UG_Update();
+    IWDG_ReloadCounter();
   }
 
   return true;

@@ -54,11 +54,11 @@ typedef struct
   UG_COLOR nBackColor;
   const wnd_control* pControls;
   char* pCaption;
-  void (*Init)();
-  void (*EventCallBack)( UG_MESSAGE* );
-  void (*TimerCallBack)();
-  void (*ExecCallBack)();
-  void (*ExitClickCallBack)();
+  void (*Init)();                        // inicializacni kod po vytvoreni okna
+  void (*EventCallBack)( UG_MESSAGE* );  // reakce na udalosti
+  void (*TimerCallBack)();               // casovac okna
+  void (*ExecCallBack)();                // moznost neco vykonat pri behu okna
+  void (*ExitClickCallBack)();           // moznost reagovat na kliknuti kamkoliv do okna
 }wnd_window_t;
 
 #define TEXT_NORMAL   FONT_12X20
@@ -83,7 +83,7 @@ void WndStart();
 void Wnd_CreateTextBox(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_TEXTBOX* pTextbox);
 void Wnd_CreateButton(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_BUTTON* pButton);
 void Wnd_SetButtonTextFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue);
-void Wnd_SetTextboxFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue);
+void Wnd_SetTextboxFromInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue);
 
 void DrawCross(uint16_t x, uint16_t y, uint16_t colorIn, uint16_t colorOut);
 void DrawSun(uint16_t x, uint16_t y, uint16_t color);
