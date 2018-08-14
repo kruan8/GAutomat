@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../Icons/light.c"
 #include "../Icons/fan.c"
 #include "../Icons/heat.c"
 
@@ -57,8 +58,9 @@ const wnd_window_t wndMain =
     WndMain_ExitClickCallBack,
 };
 
+const BMPbpp1 BmpLight = { ImgLight, 64, 64, C_YELLOW };
 const BMPbpp1 BmpFan = { ImgFan, 64, 64, C_BLUE };
-const BMPbpp1 BmbHeat = { ImgHeat, 64, 64, C_RED };
+const BMPbpp1 BmpHeat = { ImgHeat, 64, 64, C_RED };
 
 wnd_window_t* WndMain_GetTemplate()
 {
@@ -155,12 +157,12 @@ void WndMain_Exec()
   {
     if (data.bLight)
     {
-      DrawSun(55, 195, yellow);
+      ILI9163_DrawMonochromeBitmap(23, 163, (BMPbpp1*) &BmpLight);
       g_lastData.bLight = true;
     }
     else
     {
-      DrawSun(55, 195, C_BLACK);
+      UG_FillFrame(23, 163, 23 + 64, 163 + 64, C_BLACK);
       g_lastData.bLight = false;
     }
   }
@@ -170,7 +172,7 @@ void WndMain_Exec()
   {
     if (data.bHeat)
     {
-      ILI9163_DrawMonochromeBitmap(126, 163, (BMPbpp1*) &BmbHeat);
+      ILI9163_DrawMonochromeBitmap(126, 163, (BMPbpp1*) &BmpHeat);
       g_lastData.bHeat = true;
     }
     else
