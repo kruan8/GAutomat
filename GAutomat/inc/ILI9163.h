@@ -76,12 +76,21 @@ typedef struct{
 	uint16_t bkgColor;
 } TextParam;
 
+typedef struct
+{
+   const void* pData;
+   uint16_t nWidth;
+   uint16_t nHeight;
+   uint16_t nColor;
+} BMPbpp1;
+
 void ILI9163_Init();
 void ILI9163_WritePixel(uint16_t x, uint16_t y, uint16_t color);
 void ILI9163_SetAddress(uint16_t xStart, uint16_t yStart, uint16_t xStop, uint16_t yStop);
 void ILI9163_WriteToReg(uint8_t value);
 void ILI9163_WriteData8(uint8_t value);
 void ILI9163_WriteData16(uint16_t value);
+void ILI9163_WriteData16Block(uint16_t* arrBuffer, uint16_t nLength);
 
 void ILI9163_LedOn();
 void ILI9163_LedOff();
@@ -93,7 +102,7 @@ void ILI9163_PrintText(uint16_t x, uint16_t y, char* text);
 void ILI9163_PrintChar(uint16_t x, uint16_t y, char c);
 
 void ILI9163_ConfigDMA();
-void ILI9163_TransferDMA(uint32_t nMemAddr, uint16_t nLength, bool bMemInc);
+void ILI9163_DMATransfer(uint32_t nMemAddr, uint16_t nLength, bool bMemInc);
 void ILI9163_StartDMA(uint32_t nMemAddr, uint16_t nLength, bool bMemInc);
 
 // sada funkci pro akceleraci uGUI
@@ -102,5 +111,7 @@ uint8_t ILI9163_FillFrame(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16
 void ILI9163_InitFillArea(uint16_t nMemSize);
 void* ILI9163_FillArea(int16_t posX, int16_t posY, int16_t nEndX, int16_t nEndY);
 void ILI9163_FillAreaSetPixel(uint16_t nColor);
+
+void ILI9163_DrawMonochromeBitmap(uint16_t xPos, uint16_t yPos, BMPbpp1* bmp);
 
 #endif /* ILI9163_H_ */

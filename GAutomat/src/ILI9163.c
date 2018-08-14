@@ -58,6 +58,7 @@
 
 #define DMA_STREAM                DMA2_Stream5
 
+#define BUFFER_LEN                10
 
 // chyba spatneho zadratovani displeje (128x160)
 // je treba posunout zobrazovanou pamet o 32 radku nize
@@ -75,7 +76,7 @@ uint16_t g_nCharPosY;
 uint16_t g_nCharEndX;
 uint16_t g_nCharEndY;
 
-
+uint16_t g_arrBuffer[BUFFER_LEN];
 
 void ILI9163_Init()
 {
@@ -268,6 +269,25 @@ void ILI9163_WriteData16(uint16_t value)
 	ILI9163_CS_DISABLE;
 }
 
+void ILI9163_WriteData16Block(uint16_t* arrBuffer, uint16_t nLength)
+{
+  ILI9163_CS_ENABLE;
+  ILI9163_A0_DATA;
+
+  while (nLength--)
+  {
+    uint16_t nValue = *arrBuffer++;
+    SPI1->DR = (uint8_t)(nValue >> 8);
+    while (!(SPI1->SR & SPI_I2S_FLAG_TXE));
+    SPI1->DR = (uint8_t)(nValue & 0xFF);
+    while (!(SPI1->SR & SPI_I2S_FLAG_TXE));
+  }
+
+  while (SPI1->SR & SPI_I2S_FLAG_BSY);
+
+  ILI9163_CS_DISABLE;
+}
+
 void ILI9163_FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
   if (x >= ILI9163_RES_X || y >= ILI9163_RES_Y)
@@ -349,7 +369,7 @@ void ILI9163_ConfigDMA()
 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
 }
 
-void ILI9163_TransferDMA(uint32_t nMemAddr, uint16_t nLength, bool bMemInc)
+void ILI9163_DMATransfer(uint32_t nMemAddr, uint16_t nLength, bool bMemInc)
 {
 
 }
@@ -441,5 +461,60 @@ void ILI9163_FillAreaSetPixel(uint16_t nColor)
     SPI_Cmd(SPI1, DISABLE);
     SPI_DataSizeConfig(SPI1, SPI_DataSize_8b);
     SPI_Cmd(SPI1, ENABLE);
+  }
+}
+
+// vykresleni jednobitove bitmapy
+// bitmapa vygenerovana pomoci programu 'Image2Code' (volba 3, smer up->down, left->right)
+void ILI9163_DrawMonochromeBitmap(uint16_t xPos, uint16_t yPos, BMPbpp1* bmp)
+{
+  uint8_t* pData;
+  uint8_t data;
+  uint16_t c;
+
+  if (bmp->pData == NULL)
+  {
+    return;
+  }
+
+  c = bmp->nColor;
+  pData = (uint8_t*)bmp->pData;
+
+  ILI9163_SetAddress(xPos, yPos, xPos + bmp->nWidth - 1, yPos + bmp->nHeight - 1);
+  uint8_t nBufPos = 0;
+  for (uint16_t y = 0; y < bmp->nHeight; y++)
+  {
+     for (uint16_t x = 0; x < bmp->nWidth; x += 8)
+     {
+        data = *pData++;
+        for (uint8_t i = 0; i < 8; i++)
+        {
+
+          if (nBufPos == BUFFER_LEN)
+          {
+            // poslat obsah bufferu do radice
+            ILI9163_WriteData16Block(g_arrBuffer, nBufPos);
+
+#ifdef DMA_ENABLE
+            // DMA transfer
+#else
+            // block transfer
+#endif
+            nBufPos = 0;
+          }
+
+          if (data & 0x80)
+          {
+            g_arrBuffer[nBufPos] = c;
+          }
+          else
+          {
+            g_arrBuffer[nBufPos] = 0;
+          }
+
+          nBufPos++;
+          data <<= 1;
+        }
+     }
   }
 }
