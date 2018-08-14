@@ -13,6 +13,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../Icons/fan.c"
+#include "../Icons/heat.c"
+
 #ifdef DEBUG
   #define REGULATION_LOOP_MS    1000
 #elif
@@ -53,6 +56,9 @@ const wnd_window_t wndMain =
     WndMain_Exec,
     WndMain_ExitClickCallBack,
 };
+
+const BMPbpp1 BmpFan = { ImgFan, 64, 64, C_BLUE };
+const BMPbpp1 BmbHeat = { ImgHeat, 64, 64, C_RED };
 
 wnd_window_t* WndMain_GetTemplate()
 {
@@ -164,12 +170,12 @@ void WndMain_Exec()
   {
     if (data.bHeat)
     {
-      DrawHeat(158, 195, red);
+      ILI9163_DrawMonochromeBitmap(126, 163, (BMPbpp1*) &BmbHeat);
       g_lastData.bHeat = true;
     }
     else
     {
-      DrawHeat(158, 195, C_BLACK);
+      UG_FillFrame(126, 163, 126 + 64, 163 + 64, C_BLACK);
       g_lastData.bHeat = false;
     }
   }
@@ -179,12 +185,12 @@ void WndMain_Exec()
   {
     if (data.bFan)
     {
-      DrawFan(255, 195, blue);
+      ILI9163_DrawMonochromeBitmap(223, 163, (BMPbpp1*) &BmpFan);
       g_lastData.bFan = true;
     }
     else
     {
-      DrawFan(255, 195, C_BLACK);
+      UG_FillFrame(223, 163, 223 + 64, 163 + 64, C_BLACK);
       g_lastData.bFan = false;
     }
   }
