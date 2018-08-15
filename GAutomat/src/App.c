@@ -7,9 +7,9 @@
 
 #include "App.h"
 #include "common.h"
-#include "Windows.h"
 #include "DHT.h"
 #include "timer.h"
+#include "app_data.h"
 
 #include "rtcf4.h"
 #include <string.h>
@@ -43,11 +43,8 @@ typedef enum
 
 app_re_e g_arrRelays[] = { app_re_light, app_re_heat, app_re_fan, app_re_reserved };
 
-app_data_t g_appData;
-
 uint32_t g_nCheckLastTime;
 uint32_t g_nLedOffCounter;
-
 
 void App_Init()
 {
@@ -136,7 +133,7 @@ void App_RegulationLoop(app_measure_data_t* data)
   if (data->nError != err_dht)
   {
     // temperature check
-    if (dht_data.Temp < g_appData.temperature)
+    if (dht_data.Temp < AppData_GetTemperature())
     {
       nReState |= (1 << app_re_pos_heat);
       GPIO_GetPort(app_re_heat)->BSRRH = GPIO_GetPin(app_re_heat); // reset (rele ON)
@@ -148,7 +145,7 @@ void App_RegulationLoop(app_measure_data_t* data)
     }
 
     // max temperature check
-    if (dht_data.Temp > g_appData.temp_max)
+    if (dht_data.Temp > AppData_GetTemperatureMax())
     {
       nReState |= (1 << app_re_pos_fan);
       GPIO_GetPort(app_re_fan)->BSRRH = GPIO_GetPin(app_re_fan); // reset (rele ON)
@@ -166,15 +163,15 @@ void App_RegulationLoop(app_measure_data_t* data)
   data->nHour = dt.hour;
   data->nMin = dt.min;
   uint8_t nHour = dt.hour;
-  uint8_t nOn = g_appData.light_on;
-  uint8_t nOff = g_appData.light_off;
+  uint8_t nOn = AppData_GetLightOn();
+  uint8_t nOff = AppData_GetLightOff();
   bool bInvers = false;
 
   // zjistime, jestli interval prechazi do druheho ne
   if (nOff < nOn)
   {
-    nOn = g_appData.light_off;
-    nOff = g_appData.light_on;
+    nOn = AppData_GetLightOff();
+    nOff = AppData_GetLightOn();
     bInvers = true;
   }
 

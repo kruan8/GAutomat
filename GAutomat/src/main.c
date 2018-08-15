@@ -62,9 +62,3 @@ int main(void)
   Wm_AddNewWindow(WndStart_GetTemplate());
   Wm_Exec();
 }
-
-
-
-
-
-

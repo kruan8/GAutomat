@@ -11,22 +11,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAX_OBJECTS 10
-
-#define WND_EDIT_OBJECTS  11
-
-UG_GUI gui; // Global GUI structure
-
-bool g_bExit = false;
-bool g_bWndResult;
-wnd_main_data_t g_lastData;
-
-const Coordinate  g_CrossPosition[3] = { {32, 24}, {288, 120}, {160, 216} };
-
-char g_strVersion[] = { __DATE__ };
-
-UG_WINDOW*       g_pActiveWindow;
-
 
 void Wnd_CreateTextBox(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_TEXTBOX* pTextbox)
 {
