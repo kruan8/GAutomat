@@ -131,7 +131,7 @@ Coordinate *Read_XPT2046(void)
 
     if (pXPT2046ClickCallback)
     {
-      pXPT2046ClickCallback();
+      pXPT2046ClickCallback(&screen);
     }
 
     XPT2046_Delay();

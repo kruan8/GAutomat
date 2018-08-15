@@ -13,7 +13,10 @@
 #include "Windows.h"
 #include "wnd_manager.h"
 
-wnd_window_t* WndStart_Init();
+wnd_window_t* WndStart_GetTemplate();
+void WndStart_Init();
 void WndStart_Callback(UG_MESSAGE *msg);
+void WndStart_Timer_1ms();
+void WndStart_ClickCallBack();
 
 #endif /* WINDOWS_WND_START_H_ */

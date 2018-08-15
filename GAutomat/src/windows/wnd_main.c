@@ -41,10 +41,6 @@ const wnd_control arrMainControls[] =
     { wnd_none,      0,    0,      0,      0,            0,            0,        0,         0,   "" },
 };
 
-uint32_t g_nMeasureTimer;
-bool     g_bRegulation;
-app_measure_data_t g_lastData;
-
 const wnd_window_t wndMain =
 {
     WND_STYLE_2D | WND_STYLE_HIDE_TITLE,
@@ -55,12 +51,16 @@ const wnd_window_t wndMain =
     WndMain_Callback,
     WndMain_Timer_1ms,
     WndMain_Exec,
-    WndMain_ExitClickCallBack,
+    WndMain_ClickCallBack,
 };
 
 const BMPbpp1 BmpLight = { ImgLight, 64, 64, C_YELLOW };
 const BMPbpp1 BmpFan = { ImgFan, 64, 64, C_BLUE };
 const BMPbpp1 BmpHeat = { ImgHeat, 64, 64, C_RED };
+
+uint32_t g_nMeasureTimer;
+bool     g_bRegulation;
+app_measure_data_t g_lastData;
 
 wnd_window_t* WndMain_GetTemplate()
 {
@@ -80,7 +80,7 @@ void WndMain_Callback(UG_MESSAGE *msg)
   {
     if (msg->sub_id == main_tb_time)
     {
-//      UG_TextboxSetText(Wm_GetWnd(), msg->sub_id, g_strVer);
+
     }
   }
 }
@@ -107,7 +107,7 @@ void WndMain_Exec()
   App_RegulationLoop(&data);
 
   // pokud neni zkalibrovany display, vykreslit znacku
-  if (!App_GetConfig()->lcd_calibrated)
+  if (!AppData_GetLcdCalibrated())
   {
     UG_FillFrame(0, 0, 319, 10, C_RED);
   }
@@ -200,7 +200,8 @@ void WndMain_Exec()
   g_bRegulation = false;
 }
 
-void WndMain_ExitClickCallBack()
+void WndMain_ClickCallBack()
 {
   Wm_AddNewWindow(WndEdit_GetTemplate());
+  Wm_CloseWindow();
 }

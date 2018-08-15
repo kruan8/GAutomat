@@ -170,12 +170,13 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
     }
   }
 
-  UG_WindowShow(&window);
-
   if (pWndTemplate->Init)
   {
     pWndTemplate->Init();
   }
+
+  UG_WindowShow(&window);
+  UG_Update();
 
   // smycka zprav
   while(!g_bClose)
@@ -183,14 +184,9 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
     Coordinate* pCoo = Read_XPT2046();
     if (pCoo)
     {
-      if (g_bEndClick)
+      if (pWndTemplate->ClickCallBack)
       {
-        g_bClose = true;
-        g_bEndClick = false;
-        if (pWndTemplate->ExitClickCallBack)
-        {
-          pWndTemplate->ExitClickCallBack();
-        }
+        pWndTemplate->ClickCallBack();
       }
 
       Coordinate Display;
@@ -216,7 +212,7 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
 
 void Wm_SetEndClick()
 {
-  g_bEndClick = true;
+//  g_bEndClick = true;
 }
 
 UG_WINDOW* Wm_GetWnd()

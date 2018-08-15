@@ -105,14 +105,22 @@ wnd_window_t* WndEdit_GetTemplate()
 void WndEdit_Init()
 {
   RTCF4_Get(&g_dt);
+
+//  UG_WINDOW* pWnd = Wm_GetWnd();
+//  Wnd_SetButtonTextFormInt(pWnd, edit_bt_time_hour, g_dt.hour);
+//  Wnd_SetButtonTextFormInt(pWnd, edit_bt_time_min, g_dt.min);
+//  Wnd_SetButtonTextFormInt(pWnd, edit_bt_light_on, AppData_GetLightOn());
+//  Wnd_SetButtonTextFormInt(pWnd, edit_bt_light_off, AppData_GetLightOff());
+//  Wnd_SetButtonTextFormInt(pWnd, edit_bt_temp, AppData_GetTemperature());
+//  Wnd_SetButtonTextFormInt(pWnd, edit_bt_tempmax, AppData_GetTemperatureMax());
 }
 
-bool Wnd_CreateWindowEdit(wnd_edit_data_t* pData)
-{
-  g_pEditData = (wnd_edit_data_t*)pData;
-  uint8_t nControls = sizeof(arrEditControls) / sizeof(wnd_control);
-  return Wnd_CreateWindow((wnd_window_t*)&wndEdit, nControls);
-}
+//bool Wnd_CreateWindowEdit(wnd_edit_data_t* pData)
+//{
+//  g_pEditData = (wnd_edit_data_t*)pData;
+//  uint8_t nControls = sizeof(arrEditControls) / sizeof(wnd_control);
+//  return Wnd_CreateWindow((wnd_window_t*)&wndEdit, nControls);
+//}
 
 void WindowEdit_Callback(UG_MESSAGE *msg)
 {
@@ -123,61 +131,47 @@ void WindowEdit_Callback(UG_MESSAGE *msg)
       switch (msg->sub_id)
       {
       case edit_bt_ok:
-        App_SaveConfig();
+        AppData_SaveConfig();
         Wm_CloseWindow();
         break;
       case edit_bt_cancel:
         Wm_CloseWindow();
         break;
       case edit_bt_p1:
-        App_SetLightOn(18);
-        App_SetLightOff(6);
-        App_SetTemperature(19);
+        AppData_SetLightOn(18);
+        AppData_SetLightOff(6);
+        AppData_SetTemperature(19);
         AppData_SetTemperatureMax(28);
         UG_WindowShow(Wm_GetWnd());
         break;
       case edit_bt_p2:
-        App_SetLightOn(18);
-        App_SetLightOff(8);
-        App_SetTemperature(21);
+        AppData_SetLightOn(18);
+        AppData_SetLightOff(8);
+        AppData_SetTemperature(21);
         AppData_SetTemperatureMax(28);
         UG_WindowShow(Wm_GetWnd());
         break;
       case edit_bt_light_on:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(&App_GetConfig()->light_on, "Svetlo zap.");
+        WndSetValue_SetValue(AppData_GetLightOnPointer(), "Svetlo zap.");
         Wm_CloseWindow();
         break;
       case edit_bt_light_off:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(&App_GetConfig()->light_off, "Svetlo vyp.");
+        WndSetValue_SetValue(AppData_GetLightOffPointer(), "Svetlo vyp.");
         Wm_CloseWindow();
         break;
       case edit_bt_temp:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(&App_GetConfig()->temperature, "Teplota");
+        WndSetValue_SetValue(AppData_GetTemperaturePointer(), "Teplota");
         Wm_CloseWindow();
         break;
       case edit_bt_tempmax:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(&App_GetConfig()->temp_max, "Teplota max");
+        WndSetValue_SetValue(AppData_GetTemperatureMaxPointer(), "Teplota max");
         Wm_CloseWindow();
         break;
       }
-
-//      uint8_t* pnValue = Wnd_EditGetValuePointer(msg->sub_id);
-//
-//      // pokud je nalezena hodnota, tak ji edituj
-//      if (pnValue)
-//      {
-//        char* pText = UG_TextboxGetText(Wnd_GetWindow(), msg->sub_id);
-//        if (Wnd_CreateWindowSetValue(*pnValue, pText))
-//        {
-//          *pnValue = Wnd_GetEditedValue();
-//        }
-//
-//        UG_WindowShow(Wnd_GetWindow());
-//      }
     }
   }
 
@@ -223,34 +217,3 @@ void WindowEdit_Callback(UG_MESSAGE *msg)
     }
   }
 }
-
-//uint8_t* Wnd_EditGetValuePointer(uint8_t nId)
-//{
-//  uint8_t* pnId;
-//  switch (nId)
-//  {
-//  case edit_bt_time_hour:
-//    pnId = &g_pEditData->nHour;
-//    break;
-//  case edit_bt_time_min:
-//    pnId = &g_pEditData->nMin;
-//    break;
-//  case edit_bt_light_on:
-//    pnId = &g_pEditData->nLightOn;
-//    break;
-//  case edit_bt_light_off:
-//    pnId = &g_pEditData->nLightOff;
-//    break;
-//  case edit_bt_temp:
-//    pnId = &g_pEditData->nTemperature;
-//    break;
-//  case edit_bt_tempmax:
-//    pnId = &g_pEditData->nTemperatureMax;
-//    break;
-//  default:
-//    pnId = NULL;
-//    break;
-//  }
-//
-//  return pnId;
-//}

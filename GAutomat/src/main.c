@@ -38,7 +38,7 @@ int main(void)
   RCC_ClocksTypeDef RCC_Clocks;
   RCC_GetClocksFreq(&RCC_Clocks); // Get system clocks
 
-  // Todo: implementobvat WATCHDOG
+  // Todo: implementovat WATCHDOG
 //  // Start Watchdog
 //  IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
 //  IWDG_SetPrescaler(IWDG_Prescaler_64);      // 32kHz / 64
@@ -58,22 +58,9 @@ int main(void)
 
 //  RTCF4_Test();
 
-  Wnd_Init();
-
-  WndStart();
-
-  // kontrola TOUCH click -> kalibrace
-  App_Calibrate();
-
   Wm_Init();
-  Wm_AddNewWindow(WndMain_GetTemplate());
-
+  Wm_AddNewWindow(WndStart_GetTemplate());
   Wm_Exec();
-
-//  while(1)
-//  {
-//    App_Exec();
-//  }
 }
 
 
