@@ -55,7 +55,6 @@ void WndCalib_Init()
 {
   g_bFirstSymbol = 0;
   g_nClickCounter = 0;
-  Wm_SetEndClick();
   g_pCoordinate = AppData_GetCoordinatePointer();
 }
 

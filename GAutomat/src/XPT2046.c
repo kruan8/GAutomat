@@ -145,7 +145,7 @@ Coordinate *Read_XPT2046(void)
 FunctionalState XPT2046_SetCalibrationMatrix( Coordinate * displayPtr, Coordinate * screenPtr)
 {
   FunctionalState retTHRESHOLD = ENABLE ;
-  /* K£½(X0£­X2) (Y1£­Y2)£­(X1£­X2) (Y0£­Y2) */
+  /* ((X0­X2)*(Y1­Y2))­((X1­X2)*(Y0­Y2)) */
   matrix.Divider = ((screenPtr[0].x - screenPtr[2].x) * (screenPtr[1].y - screenPtr[2].y)) -
                        ((screenPtr[1].x - screenPtr[2].x) * (screenPtr[0].y - screenPtr[2].y));
   if( matrix.Divider == 0 )
@@ -154,23 +154,23 @@ FunctionalState XPT2046_SetCalibrationMatrix( Coordinate * displayPtr, Coordinat
   }
   else
   {
-    /* A£½((XD0£­XD2) (Y1£­Y2)£­(XD1£­XD2) (Y0£­Y2))£¯K	*/
+    /* A = ((XD0­XD2)*(Y1­Y2))­((XD1­XD2)*(Y0­Y2))	*/
     matrix.An = ((displayPtr[0].x - displayPtr[2].x) * (screenPtr[1].y - screenPtr[2].y)) -
                     ((displayPtr[1].x - displayPtr[2].x) * (screenPtr[0].y - screenPtr[2].y)) ;
-	/* B£½((X0£­X2) (XD1£­XD2)£­(XD0£­XD2) (X1£­X2))£¯K	*/
+	  /* B = ((X0­X2)*(XD1­XD2))­((XD0­XD2)*(X1­X2))	*/
     matrix.Bn = ((screenPtr[0].x - screenPtr[2].x) * (displayPtr[1].x - displayPtr[2].x)) -
                     ((displayPtr[0].x - displayPtr[2].x) * (screenPtr[1].x - screenPtr[2].x)) ;
-    /* C£½(Y0(X2XD1£­X1XD2)+Y1(X0XD2£­X2XD0)+Y2(X1XD0£­X0XD1))£¯K */
+    /* C = ((Y0(X2*XD1­X1*XD2)+Y1(X0*XD2­X2*XD0)+Y2(X1*XD0­X0*XD1)) */
     matrix.Cn = (screenPtr[2].x * displayPtr[1].x - screenPtr[1].x * displayPtr[2].x) * screenPtr[0].y +
                     (screenPtr[0].x * displayPtr[2].x - screenPtr[2].x * displayPtr[0].x) * screenPtr[1].y +
                     (screenPtr[1].x * displayPtr[0].x - screenPtr[0].x * displayPtr[1].x) * screenPtr[2].y ;
-    /* D£½((YD0£­YD2) (Y1£­Y2)£­(YD1£­YD2) (Y0£­Y2))£¯K	*/
+    /* D = ((YD0­YD2)*(Y1­Y2))­((YD1­YD2)*(Y0­Y2))	*/
     matrix.Dn = ((displayPtr[0].y - displayPtr[2].y) * (screenPtr[1].y - screenPtr[2].y)) -
                     ((displayPtr[1].y - displayPtr[2].y) * (screenPtr[0].y - screenPtr[2].y)) ;
-    /* E£½((X0£­X2) (YD1£­YD2)£­(YD0£­YD2) (X1£­X2))£¯K	*/
+    /* E = ((X0­X2)*(YD1­YD2))­((YD0­YD2)*(X1­X2))	*/
     matrix.En = ((screenPtr[0].x - screenPtr[2].x) * (displayPtr[1].y - displayPtr[2].y)) -
                     ((displayPtr[0].y - displayPtr[2].y) * (screenPtr[1].x - screenPtr[2].x)) ;
-    /* F£½(Y0(X2YD1£­X1YD2)+Y1(X0YD2£­X2YD0)+Y2(X1YD0£­X0YD1))£¯K */
+    /* F = (Y0(X2*YD1­X1*YD2)+Y1(X0*YD2­X2*YD0)+Y2(X1*YD0­X0*YD1)) */
     matrix.Fn = (screenPtr[2].x * displayPtr[1].y - screenPtr[1].x * displayPtr[2].y) * screenPtr[0].y +
                     (screenPtr[0].x * displayPtr[2].y - screenPtr[2].x * displayPtr[0].y) * screenPtr[1].y +
                     (screenPtr[1].x * displayPtr[0].y - screenPtr[0].x * displayPtr[1].y) * screenPtr[2].y ;

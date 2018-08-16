@@ -39,12 +39,8 @@ typedef enum
   #define APP_CHECK_INTERVAL_MS   10000
 #endif
 
-#define APP_LED_INTERVAL_MS    60000
-
 app_re_e g_arrRelays[] = { app_re_light, app_re_heat, app_re_fan, app_re_reserved };
 
-uint32_t g_nCheckLastTime;
-uint32_t g_nLedOffCounter;
 
 void App_Init()
 {
@@ -65,10 +61,6 @@ void App_Init()
     GPIO_Init(GPIO_GetPort(ePin), &GPIO_InitStructure);
   }
 
-  Timer_SetSysTickCallback(App_Timer1ms);
-  XPT2046_SetClickCallback(App_Click);
-  g_nLedOffCounter = APP_LED_INTERVAL_MS;
-
   // all relays OFF
   GPIO_GetPort(app_re_light)->BSRRL = GPIO_GetPin(app_re_light);
   GPIO_GetPort(app_re_heat)->BSRRL = GPIO_GetPin(app_re_heat);
@@ -76,43 +68,9 @@ void App_Init()
   GPIO_GetPort(app_re_reserved)->BSRRL = GPIO_GetPin(app_re_reserved);
 }
 
-void App_Timer1ms()
-{
-  if (g_nLedOffCounter)
-  {
-    g_nLedOffCounter--;
-    if (g_nLedOffCounter == 0)
-    {
-      ILI9163_LedOff();
-    }
-  }
-
-  // zachyceni preteceni ticks casovace
-  if (Timer_GetTicks_ms() == 0)
-  {
-    g_nCheckLastTime = 0;
-  }
-}
-
-bool App_Click()
-{
-  // pri kliknuti nastavit casovac vypnuti LED podsviceni
-  bool bClick = true;
-  if (g_nLedOffCounter == 0)
-  {
-    bClick = false;
-    ILI9163_LedOn();
-  }
-
-  g_nLedOffCounter = APP_LED_INTERVAL_MS;
-  return bClick;
-}
-
+// provedeme regulace
 void App_RegulationLoop(app_measure_data_t* data)
 {
-  // provedeme regulace
-  g_nCheckLastTime = Timer_GetTicks_ms();
-
   memset(data, 0, sizeof(wnd_main_data_t));
 
   dht_data_t dht_data;

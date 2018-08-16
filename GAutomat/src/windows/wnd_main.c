@@ -58,8 +58,8 @@ const BMPbpp1 BmpLight = { ImgLight, 64, 64, C_YELLOW };
 const BMPbpp1 BmpFan = { ImgFan, 64, 64, C_BLUE };
 const BMPbpp1 BmpHeat = { ImgHeat, 64, 64, C_RED };
 
-uint32_t g_nMeasureTimer;
-bool     g_bRegulation;
+uint32_t           g_nMeasureTimer;
+bool               g_bRegulation;
 app_measure_data_t g_lastData;
 
 wnd_window_t* WndMain_GetTemplate()
@@ -69,7 +69,6 @@ wnd_window_t* WndMain_GetTemplate()
 
 void WndMain_Init()
 {
-  Wm_SetEndClick();
   g_nMeasureTimer = 0;
   memset (&g_lastData, 0, sizeof (g_lastData));
 }

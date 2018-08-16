@@ -44,18 +44,6 @@ typedef enum
 }app_errors_t;
 
 void App_Init();
-void App_Timer1ms();
-bool App_Click();
-void App_Exec();
 void App_RegulationLoop(app_measure_data_t* data);
-
-uint8_t App_GetLightOn();
-bool App_SetLightOn(uint8_t nValue);
-uint8_t App_GetLightOff();
-bool App_SetLightOff(uint8_t nValue);
-uint8_t App_GetTemperature();
-bool App_SetTemperature(uint8_t nValue);
-uint8_t App_GetTemperatureMax();
-bool App_SetTemperatureMax(uint8_t nValue);
 
 #endif /* APP_H_ */
