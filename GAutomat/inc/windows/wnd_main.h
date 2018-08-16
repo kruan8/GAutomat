@@ -18,6 +18,6 @@ void WndMain_Init();
 void WndMain_Callback(UG_MESSAGE *msg);
 void WndMain_Timer_1ms();
 void WndMain_Exec();
-void WndMain_ExitClickCallBack();
+void WndMain_ClickCallBack();
 
 #endif /* WINDOWS_WND_MAIN_H_ */

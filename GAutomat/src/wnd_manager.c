@@ -11,11 +11,14 @@
 
 #define WND_WINDOWS_MAX   10
 
+#define APP_LED_INTERVAL_MS    60000
+
 UG_GUI gui; // Global GUI structure
 
 UG_WINDOW*        g_pActualWindow;
 
 PtrExeCallback pExeCallback = 0;
+PtrSysTickCallback pSysTickCb = 0;
 
 wnd_window_t*    g_arrWindowStack[WND_WINDOWS_MAX];
 uint8_t          g_nWindowPos = 0;
@@ -23,8 +26,11 @@ uint8_t          g_nWindowPos = 0;
 wnd_window_t*    g_pNewWindow = NULL;
 bool             g_bClose;                  // zadost o zavreni okna
 bool             g_bEndClick;
+uint32_t         g_nLedOffCounter;
 
-bool Wm_CreateWindow(wnd_window_t* pWndTemplate);
+
+static bool Wm_CreateWindow(wnd_window_t* pWndTemplate);
+static void Wm_SysTickCallback();
 
 void Wm_Init()
 {
@@ -39,47 +45,16 @@ void Wm_Init()
 
   g_bClose = false;
   g_bEndClick = false;
+
+  g_nLedOffCounter = APP_LED_INTERVAL_MS;
+
+  Timer_SetSysTickCallback(Wm_SysTickCallback);
 }
 
-bool Wm_Exec()
+UG_WINDOW* Wm_GetWnd()
 {
-  wnd_window_t* pWnd = NULL;
-
-  while (true)
-  {
-    if (g_pNewWindow)
-    {
-      g_nWindowPos++;
-      if (g_nWindowPos == WND_WINDOWS_MAX)
-      {
-        g_nWindowPos--;
-        return true;
-      }
-
-      g_arrWindowStack[g_nWindowPos] = g_pNewWindow;
-      pWnd = g_pNewWindow;
-      g_pNewWindow = NULL;
-    }
-    else
-    {
-      if (g_nWindowPos == 0)
-      {
-        return false;
-      }
-
-      g_nWindowPos--;
-      pWnd = g_arrWindowStack[g_nWindowPos];
-    }
-
-    if (pWnd)
-    {
-      Wm_CreateWindow(pWnd);
-    }
-  }
-
-  return true;
+  return g_pActualWindow;
 }
-
 
 bool Wm_AddNewWindow(wnd_window_t* pWndTemplate)
 {
@@ -92,7 +67,7 @@ void Wm_CloseWindow()
   g_bClose = true;
 }
 
-bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
+static bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
 {
   UG_WINDOW window;
   g_bClose = false;
@@ -140,7 +115,8 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
   }
 
   pExeCallback = pWndTemplate->ExecCallBack;
-  Timer_SetSysTickCallback(pWndTemplate->TimerCallBack);
+
+  pSysTickCb = pWndTemplate->TimerCallBack;
 
   uint8_t nTbIndex = 0;
   uint8_t nBtIndex = 0;
@@ -170,27 +146,35 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
     }
   }
 
-  UG_WindowShow(&window);
-
+  // call window INIT function
   if (pWndTemplate->Init)
   {
     pWndTemplate->Init();
   }
 
-  // smycka zprav
+  UG_WindowShow(&window);
+  UG_Update();
+
+  // message loop
   while(!g_bClose)
   {
     Coordinate* pCoo = Read_XPT2046();
     if (pCoo)
     {
-      if (g_bEndClick)
+      if (g_nLedOffCounter == 0)
       {
-        g_bClose = true;
-        g_bEndClick = false;
-        if (pWndTemplate->ExitClickCallBack)
-        {
-          pWndTemplate->ExitClickCallBack();
-        }
+        // pri vypnutem displeji rozsvitit a nezpracovavat kliknuti
+        ILI9163_LedOn();
+        g_nLedOffCounter = APP_LED_INTERVAL_MS;
+        continue;
+      }
+
+      // pri kliknuti nastavit casovac vypnuti LED podsviceni
+      g_nLedOffCounter = APP_LED_INTERVAL_MS;
+
+      if (pWndTemplate->ClickCallBack)
+      {
+        pWndTemplate->ClickCallBack();
       }
 
       Coordinate Display;
@@ -202,6 +186,7 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
       UG_TouchUpdate (-1, -1, TOUCH_STATE_RELEASED);
     }
 
+    // call window EXEC function
     if (pExeCallback)
     {
       pExeCallback();
@@ -214,13 +199,61 @@ bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
   return true;
 }
 
-void Wm_SetEndClick()
+bool Wm_Exec()
 {
-  g_bEndClick = true;
+  wnd_window_t* pWnd = NULL;
+
+  while (true)
+  {
+    if (g_pNewWindow)
+    {
+      g_nWindowPos++;
+      if (g_nWindowPos == WND_WINDOWS_MAX)
+      {
+        g_nWindowPos--;
+        return true;
+      }
+
+      g_arrWindowStack[g_nWindowPos] = g_pNewWindow;
+      pWnd = g_pNewWindow;
+      g_pNewWindow = NULL;
+    }
+    else
+    {
+      if (g_nWindowPos == 0)
+      {
+        return false;
+      }
+
+      g_nWindowPos--;
+      pWnd = g_arrWindowStack[g_nWindowPos];
+    }
+
+    if (pWnd)
+    {
+      Wm_CreateWindow(pWnd);
+    }
+  }
+
+  return true;
 }
 
-UG_WINDOW* Wm_GetWnd()
+static void Wm_SysTickCallback()
 {
-  return g_pActualWindow;
+  if (pSysTickCb)
+  {
+    pSysTickCb();
+  }
+
+  if (g_nLedOffCounter)
+  {
+    g_nLedOffCounter--;
+  }
+  else
+  {
+    ILI9163_LedOff();
+  }
 }
+
+
 

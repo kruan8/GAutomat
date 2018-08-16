@@ -54,7 +54,7 @@
 #define ILI9163_A0_DATA						(ILI9163_A0_GPIO_PORT->BSRRL = ILI9163_A0_PIN)
 #define ILI9163_A0_REG			 			(ILI9163_A0_GPIO_PORT->BSRRH = ILI9163_A0_PIN)
 
-#define ILI9163_SPI_PRESCALER     spi_br_4 // SPI1 bezi na APB2 (tzn. 100MHz), tzn. :4 na 25Mhz
+#define ILI9163_SPI_PRESCALER     spi_br_4 // SPI1 bezi na APB2 (tzn. 100MHz), tzn. :4 = 25Mhz
 
 #define DMA_STREAM                DMA2_Stream5
 

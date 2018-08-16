@@ -18,7 +18,6 @@ void Wm_Init();
 bool Wm_Exec();
 bool Wm_AddNewWindow(wnd_window_t* pWndTemplate);
 void Wm_CloseWindow();
-void Wm_SetEndClick();
 UG_WINDOW* Wm_GetWnd();
 
 #endif /* WND_MANAGER_H_ */

@@ -1,9 +1,9 @@
 /**
   ******************************************************************************
   * @file    main.c
-  * @author  Ac6
-  * @version V1.0
-  * @date    01-December-2013
+  * @author  Priesol Vladimir
+  * @version
+  * @date    16.8.2018
   * @brief   Default main function.
   ******************************************************************************
 */
@@ -12,22 +12,21 @@
 			
 #include "ILI9163.h"
 #include "SPI1.h"
-#include "ugui.h"
 #include "XPT2046.h"
 #include "timer.h"
-#include <stdio.h>
 #include "DHT.h"
-#include "Windows.h"
 #include "App.h"
 
 #include "rtcf4.h"
 
 #include "wnd_manager.h"
 #include "windows/wnd_start.h"
-#include "windows/wnd_main.h"
 
 /*
- * v0.0 -
+ * v0.0 - verze bez window manageru
+ * v0.1 - prepracovana sprava oken (window manager)
+ *        opraveno zpracovani kliknuti na LCD displej
+ *        ikony prevedeny do monochrome bitmapy
  *
  *
  */
@@ -38,7 +37,7 @@ int main(void)
   RCC_ClocksTypeDef RCC_Clocks;
   RCC_GetClocksFreq(&RCC_Clocks); // Get system clocks
 
-  // Todo: implementobvat WATCHDOG
+  // Todo: implementovat WATCHDOG
 //  // Start Watchdog
 //  IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
 //  IWDG_SetPrescaler(IWDG_Prescaler_64);      // 32kHz / 64
@@ -58,26 +57,7 @@ int main(void)
 
 //  RTCF4_Test();
 
-  Wnd_Init();
-
-  WndStart();
-
-  // kontrola TOUCH click -> kalibrace
-  App_Calibrate();
-
   Wm_Init();
-  Wm_AddNewWindow(WndMain_GetTemplate());
-
+  Wm_AddNewWindow(WndStart_GetTemplate());
   Wm_Exec();
-
-//  while(1)
-//  {
-//    App_Exec();
-//  }
 }
-
-
-
-
-
-

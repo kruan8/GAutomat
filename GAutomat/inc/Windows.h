@@ -58,7 +58,7 @@ typedef struct
   void (*EventCallBack)( UG_MESSAGE* );  // reakce na udalosti
   void (*TimerCallBack)();               // casovac okna
   void (*ExecCallBack)();                // moznost neco vykonat pri behu okna
-  void (*ExitClickCallBack)();           // moznost reagovat na kliknuti kamkoliv do okna
+  void (*ClickCallBack)();           // moznost reagovat na kliknuti kamkoliv do okna
 }wnd_window_t;
 
 #define TEXT_NORMAL   FONT_12X20
@@ -68,29 +68,10 @@ typedef struct
 #define WND_BUTTON_TEXT_MAX  (10)  // + ukoncovaci 0
 #define WND_TEXTBOX_TEXT_MAX  (20)  // + ukoncovaci 0
 
-void Wnd_Init();
-
-void WindowMain(wnd_main_data_t* data);
-void WindowMain_Callback(UG_MESSAGE *msg);
-bool Wnd_CreateWindow(wnd_window_t* pWindowTemplate, uint8_t nControls);
-
-UG_WINDOW* Wnd_GetWindow();
-void Wnd_SetResult(bool bResult);
-void Wnd_Exit();
-
-void WndStart();
 
 void Wnd_CreateTextBox(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_TEXTBOX* pTextbox);
 void Wnd_CreateButton(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_BUTTON* pButton);
 void Wnd_SetButtonTextFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue);
 void Wnd_SetTextboxFromInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue);
-
-void DrawCross(uint16_t x, uint16_t y, uint16_t colorIn, uint16_t colorOut);
-void DrawSun(uint16_t x, uint16_t y, uint16_t color);
-void DrawHeat(uint16_t x, uint16_t y, uint16_t color);
-void DrawFan(uint16_t x, uint16_t y, uint16_t color);
-
-bool Wnd_Calibrate(Coordinate* pScreenSamples, bool bEnableMessage);
-void Wnd_SetCalibration(Coordinate* pScreenSamples);
 
 #endif /* WINDOWS_H_ */

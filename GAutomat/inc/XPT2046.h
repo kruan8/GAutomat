@@ -36,7 +36,7 @@ typedef struct Matrix
             Divider ;
 } Matrix ;
 
-typedef bool(*PtrXPT2046ClickCallback) (void);
+typedef bool(*PtrXPT2046ClickCallback) (Coordinate* pScreenCoordinate);
 
 void XPT2046_Init(void);
 void XPT2046_Calibrate(void);  // calibration routine
