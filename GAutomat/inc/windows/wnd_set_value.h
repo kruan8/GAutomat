@@ -13,7 +13,7 @@
 #include "Windows.h"
 
 wnd_window_t* WndSetValue_GetTemplate();
-void WndSetValue_Init();
+void WndSetValue_Init(bool bFirstInit);
 uint16_t Wnd_CreateWindowSetValue(uint16_t nValue, char* pName);
 uint16_t Wnd_GetEditedValue();
 void WndSetValue_Callback(UG_MESSAGE *msg);

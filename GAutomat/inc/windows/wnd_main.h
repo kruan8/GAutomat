@@ -14,7 +14,7 @@
 #include "wnd_manager.h"
 
 wnd_window_t* WndMain_GetTemplate();
-void WndMain_Init();
+void WndMain_Init(bool bFirstInit);
 void WndMain_Callback(UG_MESSAGE *msg);
 void WndMain_Timer_1ms();
 void WndMain_Exec();

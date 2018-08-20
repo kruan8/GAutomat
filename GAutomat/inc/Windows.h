@@ -54,7 +54,7 @@ typedef struct
   UG_COLOR nBackColor;
   const wnd_control* pControls;
   char* pCaption;
-  void (*Init)();                        // inicializacni kod po vytvoreni okna
+  void (*Init)(bool bFirst);             // inicializacni kod po vytvoreni okna
   void (*EventCallBack)( UG_MESSAGE* );  // reakce na udalosti
   void (*TimerCallBack)();               // casovac okna
   void (*ExecCallBack)();                // moznost neco vykonat pri behu okna

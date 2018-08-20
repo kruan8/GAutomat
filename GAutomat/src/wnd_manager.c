@@ -29,7 +29,7 @@ bool             g_bEndClick;
 uint32_t         g_nLedOffCounter;
 
 
-static bool Wm_CreateWindow(wnd_window_t* pWndTemplate);
+static bool Wm_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit);
 static void Wm_SysTickCallback();
 
 void Wm_Init()
@@ -51,23 +51,48 @@ void Wm_Init()
   Timer_SetSysTickCallback(Wm_SysTickCallback);
 }
 
-UG_WINDOW* Wm_GetWnd()
+bool Wm_Exec()
 {
-  return g_pActualWindow;
-}
+  wnd_window_t* pWnd = NULL;
 
-bool Wm_AddNewWindow(wnd_window_t* pWndTemplate)
-{
-  g_pNewWindow = pWndTemplate;
+  while (true)
+  {
+    bool bFirstInit = false;
+    if (g_pNewWindow)
+    {
+      g_nWindowPos++;
+      if (g_nWindowPos == WND_WINDOWS_MAX)
+      {
+        g_nWindowPos--;
+        return true;
+      }
+
+      g_arrWindowStack[g_nWindowPos] = g_pNewWindow;
+      pWnd = g_pNewWindow;
+      g_pNewWindow = NULL;
+      bFirstInit = true;
+    }
+    else
+    {
+      if (g_nWindowPos == 0)
+      {
+        return false;
+      }
+
+      g_nWindowPos--;
+      pWnd = g_arrWindowStack[g_nWindowPos];
+    }
+
+    if (pWnd)
+    {
+      Wm_CreateWindow(pWnd, bFirstInit);
+    }
+  }
+
   return true;
 }
 
-void Wm_CloseWindow()
-{
-  g_bClose = true;
-}
-
-static bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
+static bool Wm_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
 {
   UG_WINDOW window;
   g_bClose = false;
@@ -149,7 +174,7 @@ static bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
   // call window INIT function
   if (pWndTemplate->Init)
   {
-    pWndTemplate->Init();
+    pWndTemplate->Init(bFirstInit);
   }
 
   UG_WindowShow(&window);
@@ -199,43 +224,20 @@ static bool Wm_CreateWindow(wnd_window_t* pWndTemplate)
   return true;
 }
 
-bool Wm_Exec()
+UG_WINDOW* Wm_GetWnd()
 {
-  wnd_window_t* pWnd = NULL;
+  return g_pActualWindow;
+}
 
-  while (true)
-  {
-    if (g_pNewWindow)
-    {
-      g_nWindowPos++;
-      if (g_nWindowPos == WND_WINDOWS_MAX)
-      {
-        g_nWindowPos--;
-        return true;
-      }
-
-      g_arrWindowStack[g_nWindowPos] = g_pNewWindow;
-      pWnd = g_pNewWindow;
-      g_pNewWindow = NULL;
-    }
-    else
-    {
-      if (g_nWindowPos == 0)
-      {
-        return false;
-      }
-
-      g_nWindowPos--;
-      pWnd = g_arrWindowStack[g_nWindowPos];
-    }
-
-    if (pWnd)
-    {
-      Wm_CreateWindow(pWnd);
-    }
-  }
-
+bool Wm_AddNewWindow(wnd_window_t* pWndTemplate)
+{
+  g_pNewWindow = pWndTemplate;
   return true;
+}
+
+void Wm_CloseWindow()
+{
+  g_bClose = true;
 }
 
 static void Wm_SysTickCallback()

@@ -54,8 +54,6 @@ const wnd_edit_names arrEditNames[] =
 
 };
 
-rtc_record_time_t g_dt;
-
 const wnd_control arrEditControls[] =
 {
   // type       | left | top | right | bott |     id           |  alignment      | tcolor  | font               |    text
@@ -96,15 +94,20 @@ const wnd_window_t wndEdit =
 };
 
 wnd_edit_data_t* g_pEditData;
+uint8_t          g_Time;
+rtc_record_time_t g_dt;
 
 wnd_window_t* WndEdit_GetTemplate()
 {
   return (wnd_window_t*) &wndEdit;
 }
 
-void WndEdit_Init()
+void WndEdit_Init(bool bFirstInit)
 {
-  RTCF4_Get(&g_dt);
+  if (bFirstInit)
+  {
+    RTCF4_Get(&g_dt);
+  }
 
 //  UG_WINDOW* pWnd = Wm_GetWnd();
 //  Wnd_SetButtonTextFormInt(pWnd, edit_bt_time_hour, g_dt.hour);
@@ -115,13 +118,6 @@ void WndEdit_Init()
 //  Wnd_SetButtonTextFormInt(pWnd, edit_bt_tempmax, AppData_GetTemperatureMax());
 }
 
-//bool Wnd_CreateWindowEdit(wnd_edit_data_t* pData)
-//{
-//  g_pEditData = (wnd_edit_data_t*)pData;
-//  uint8_t nControls = sizeof(arrEditControls) / sizeof(wnd_control);
-//  return Wnd_CreateWindow((wnd_window_t*)&wndEdit, nControls);
-//}
-
 void WindowEdit_Callback(UG_MESSAGE *msg)
 {
   if (msg->type == MSG_TYPE_OBJECT)
@@ -130,26 +126,15 @@ void WindowEdit_Callback(UG_MESSAGE *msg)
     {
       switch (msg->sub_id)
       {
-      case edit_bt_ok:
-        AppData_SaveConfig();
+      case edit_bt_time_hour:
+        Wm_AddNewWindow(WndSetValue_GetTemplate());
+        WndSetValue_SetValue(&g_dt.hour, "Cas hodina");
         Wm_CloseWindow();
         break;
-      case edit_bt_cancel:
+      case edit_bt_time_min:
+        Wm_AddNewWindow(WndSetValue_GetTemplate());
+        WndSetValue_SetValue(&g_dt.min, "Cas minuta");
         Wm_CloseWindow();
-        break;
-      case edit_bt_p1:
-        AppData_SetLightOn(18);
-        AppData_SetLightOff(6);
-        AppData_SetTemperature(19);
-        AppData_SetTemperatureMax(28);
-        UG_WindowShow(Wm_GetWnd());
-        break;
-      case edit_bt_p2:
-        AppData_SetLightOn(18);
-        AppData_SetLightOff(8);
-        AppData_SetTemperature(21);
-        AppData_SetTemperatureMax(28);
-        UG_WindowShow(Wm_GetWnd());
         break;
       case edit_bt_light_on:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
@@ -169,6 +154,28 @@ void WindowEdit_Callback(UG_MESSAGE *msg)
       case edit_bt_tempmax:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
         WndSetValue_SetValue(AppData_GetTemperatureMaxPointer(), "Teplota max");
+        Wm_CloseWindow();
+        break;
+      case edit_bt_p1:
+        AppData_SetLightOn(18);
+        AppData_SetLightOff(6);
+        AppData_SetTemperature(19);
+        AppData_SetTemperatureMax(28);
+        UG_WindowShow(Wm_GetWnd());
+        break;
+      case edit_bt_p2:
+        AppData_SetLightOn(18);
+        AppData_SetLightOff(8);
+        AppData_SetTemperature(21);
+        AppData_SetTemperatureMax(28);
+        UG_WindowShow(Wm_GetWnd());
+        break;
+      case edit_bt_ok:
+        RTCF4_Set(&g_dt, false, true);
+        AppData_SaveConfig();
+        Wm_CloseWindow();
+        break;
+      case edit_bt_cancel:
         Wm_CloseWindow();
         break;
       }
