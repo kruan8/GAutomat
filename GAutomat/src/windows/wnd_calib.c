@@ -20,9 +20,9 @@ typedef enum
 const wnd_control arrCalibControls[] =
 {
   //  type       | left | top | right | bott |     id         |  alignment  | tcolor  | font       |  text
-    { wnd_textbox, 100,   70,    240,   100,    calib_tb_text1, ALIGN_CENTER,  C_CYAN, &TEXT_NORMAL,   "KALIBRACE" },
-    { wnd_textbox,  90,  110,    250,   140,  calib_tb_disable, ALIGN_CENTER,   C_RED, &TEXT_NORMAL, "je neplatna" },
-    { wnd_textbox,  30,  150,    260,   180,    calib_tb_text2, ALIGN_CENTER,  C_CYAN, &TEXT_NORMAL, "Klikni na krizek" },
+    { wnd_textbox,  80,   70,    240,   100,    calib_tb_text1, ALIGN_CENTER,  C_CYAN, &TEXT_NORMAL,   "KALIBRACE" },
+    //{ wnd_textbox,  90,  110,    250,   140,  calib_tb_disable, ALIGN_CENTER,   C_RED, &TEXT_NORMAL, "je neplatna" },
+    { wnd_textbox,  40,  120,    280,   150,    calib_tb_text2, ALIGN_CENTER,  C_CYAN, &TEXT_NORMAL, "Klikej na krizek" },
     { wnd_none,      0,    0,      0,     0,                 0,            0,       0,            0,        "" },
 };
 
@@ -39,6 +39,7 @@ const wnd_window_t wndCalib =
     WndCalib_ClickCallBack,
 };
 
+// souradnice kalibracnich znacek
 const Coordinate  g_CrossPos[3] = { {32, 24}, {288, 120}, {160, 216} };
 
 uint8_t g_nClickCounter;        // citac kliknuti kalibrace
@@ -51,7 +52,7 @@ wnd_window_t* WndCalib_GetTemplate()
   return (wnd_window_t*) &wndCalib;
 }
 
-void WndCalib_Init()
+void WndCalib_Init(bool bFirstInit)
 {
   g_bFirstSymbol = 0;
   g_nClickCounter = 0;
@@ -93,6 +94,11 @@ void WndCalib_ClickCallBack(Coordinate* pScreenCoordinate)
   }
 
   DrawSymbol();
+}
+
+Coordinate* WndCalib_GetCoordinate()
+{
+  return (Coordinate*)&g_CrossPos[0];
 }
 
 void DrawSymbol()

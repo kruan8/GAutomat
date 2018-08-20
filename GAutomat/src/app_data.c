@@ -7,7 +7,6 @@
 
 #include "app_data.h"
 
-// Todo: !!! existuji dve stejne struktury (App.h) !!!
 typedef struct
 {
   Coordinate lcd[3];  // kalibracni udaje touch screenu
@@ -23,7 +22,6 @@ typedef struct
 #define APPDATA_BACKUP_RAM_ADDR          1        // prvni backup registr pro zapis (??? adresa 0 se mi pri resetu prepisovala ???)
 
 app_data_t g_appData;
-bool       g_bCalibrateRequest;
 
 Coordinate* AppData_GetCoordinatePointer()
 {
@@ -102,16 +100,6 @@ void AppData_SetLcdCalibrated(bool bEnable)
 bool AppData_GetLcdCalibrated()
 {
   return g_appData.lcd_calibrated;
-}
-
-void AppData_SetCalibrateRequest(bool bEnable)
-{
-  g_bCalibrateRequest = bEnable;
-}
-
-bool AppData_GetCalibrateRequest()
-{
-  return g_bCalibrateRequest;
 }
 
 void AppData_SetConfigDefault()

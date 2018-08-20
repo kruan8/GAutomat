@@ -249,7 +249,6 @@ static uint16_t RD_AD(void)
 //  temp = SPI1->DR;
 
   buf = temp << 8;
-  XPT2046_CS_ENABLE;   // Todo: wait, zatim nevim na co
 
   while (!(SPI1->SR & SPI_I2S_FLAG_TXE));
   SPI_SendData(SPI1, 0x0000);

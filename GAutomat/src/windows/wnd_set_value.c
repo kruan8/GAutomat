@@ -61,7 +61,7 @@ wnd_window_t* WndSetValue_GetTemplate()
   return (wnd_window_t*) &wndSetValue;
 }
 
-void WndSetValue_Init()
+void WndSetValue_Init(bool bFirstInit)
 {
   UG_TextboxSetText(Wm_GetWnd(), set_tb_name, g_strName);
   UG_TextboxSetText(Wm_GetWnd(), set_tb_value, g_strValueText);
@@ -74,11 +74,6 @@ void WndSetValue_SetValue(uint8_t* pnValue, char* strName)
   g_nValue = *pnValue;
   g_strName = strName;
 }
-
-//uint16_t Wnd_GetEditedValue()
-//{
-//  return g_nValue;
-//}
 
 void WndSetValue_Callback(UG_MESSAGE *msg)
 {

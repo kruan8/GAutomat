@@ -14,12 +14,13 @@
 #include "wnd_manager.h"
 
 wnd_window_t* WndCalib_GetTemplate();
-void WndCalib_Init();
+void WndCalib_Init(bool bFirstInit);
 
 void WndCalib_Callback(UG_MESSAGE *msg);
 void WndCalib_Exec();
 void WndCalib_Timer_1ms();
 void WndCalib_ClickCallBack();
+Coordinate* WndCalib_GetCoordinate();
 
 void DrawSymbol();
 void RemoveSymbol();

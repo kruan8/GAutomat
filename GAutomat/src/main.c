@@ -37,15 +37,14 @@ int main(void)
   RCC_ClocksTypeDef RCC_Clocks;
   RCC_GetClocksFreq(&RCC_Clocks); // Get system clocks
 
-  // Todo: implementovat WATCHDOG
-//  // Start Watchdog
-//  IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
-//  IWDG_SetPrescaler(IWDG_Prescaler_64);      // 32kHz / 64
-//  IWDG_SetReload(0xFFF);                    //  WD interval 4096 ms
-//  IWDG_Enable();
-//  IWDG_WriteAccessCmd(IWDG_WriteAccess_Disable);
-//
-//  DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE);   // WD stop in debug mode
+  // Start Watchdog
+  IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+  IWDG_SetPrescaler(IWDG_Prescaler_64);      // 32kHz / 64
+  IWDG_SetReload(0xFFF);                    //  WD interval 4096 ms
+  IWDG_Enable();
+  IWDG_WriteAccessCmd(IWDG_WriteAccess_Disable);
+
+  DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE);   // WD stop in debug mode
 
   Timer_Init();
   SPI1_Init();

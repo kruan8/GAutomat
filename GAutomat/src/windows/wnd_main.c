@@ -67,7 +67,7 @@ wnd_window_t* WndMain_GetTemplate()
   return (wnd_window_t*) &wndMain;
 }
 
-void WndMain_Init()
+void WndMain_Init(bool bFirstInit)
 {
   g_nMeasureTimer = 0;
   memset (&g_lastData, 0, sizeof (g_lastData));
@@ -201,6 +201,9 @@ void WndMain_Exec()
 
 void WndMain_ClickCallBack()
 {
-  Wm_AddNewWindow(WndEdit_GetTemplate());
-  Wm_CloseWindow();
+  if (AppData_GetLcdCalibrated())
+  {
+    Wm_AddNewWindow(WndEdit_GetTemplate());
+    Wm_CloseWindow();
+  }
 }

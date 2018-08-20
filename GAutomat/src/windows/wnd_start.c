@@ -51,7 +51,7 @@ wnd_window_t* WndStart_GetTemplate()
   return (wnd_window_t*) &wndStart;
 }
 
-void WndStart_Init()
+void WndStart_Init(bool bFirstInit)
 {
   if (!AppData_LoadConfig())
   {
@@ -63,19 +63,18 @@ void WndStart_Init()
 
 void WndStart_Callback(UG_MESSAGE *msg)
 {
-  if (msg->event == OBJ_EVENT_PRERENDER && msg->id == OBJ_TYPE_TEXTBOX)
-  {
-    if (msg->sub_id == start_tb_date)
-    {
 
-    }
-  }
 }
 
 void WndStart_Timer_1ms()
 {
   if (Timer_GetTicks_ms() > (g_nStartTime + WND_START_DELAY_MS))
   {
+    if (AppData_GetLcdCalibrated())
+    {
+      XPT2046_SetCalibrationMatrix(WndCalib_GetCoordinate(), AppData_GetCoordinatePointer());
+    }
+
     Wm_AddNewWindow(WndMain_GetTemplate());
     Wm_CloseWindow();
   }
@@ -83,7 +82,6 @@ void WndStart_Timer_1ms()
 
 void WndStart_ClickCallBack()
 {
-  AppData_SetCalibrateRequest(true);
   Wm_AddNewWindow(WndCalib_GetTemplate());
   Wm_CloseWindow();
 }

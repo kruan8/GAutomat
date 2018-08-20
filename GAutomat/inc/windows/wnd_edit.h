@@ -24,7 +24,7 @@ typedef struct
 }wnd_edit_data_t;
 
 wnd_window_t* WndEdit_GetTemplate();
-void WndEdit_Init();
+void WndEdit_Init(bool bFirstInit);
 bool Wnd_CreateWindowEdit(wnd_edit_data_t* pData);
 void WindowEdit_Callback(UG_MESSAGE *msg);
 
