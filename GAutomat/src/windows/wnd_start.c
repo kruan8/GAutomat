@@ -82,7 +82,6 @@ void WndStart_Timer_1ms()
 
 void WndStart_ClickCallBack()
 {
-  AppData_SetCalibrateRequest(true);
   Wm_AddNewWindow(WndCalib_GetTemplate());
   Wm_CloseWindow();
 }

@@ -201,6 +201,9 @@ void WndMain_Exec()
 
 void WndMain_ClickCallBack()
 {
-  Wm_AddNewWindow(WndEdit_GetTemplate());
-  Wm_CloseWindow();
+  if (AppData_GetLcdCalibrated())
+  {
+    Wm_AddNewWindow(WndEdit_GetTemplate());
+    Wm_CloseWindow();
+  }
 }

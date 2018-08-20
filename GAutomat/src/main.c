@@ -37,7 +37,6 @@ int main(void)
   RCC_ClocksTypeDef RCC_Clocks;
   RCC_GetClocksFreq(&RCC_Clocks); // Get system clocks
 
-  // Todo: implementovat WATCHDOG
   // Start Watchdog
   IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
   IWDG_SetPrescaler(IWDG_Prescaler_64);      // 32kHz / 64
