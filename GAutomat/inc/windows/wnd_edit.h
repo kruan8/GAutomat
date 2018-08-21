@@ -10,7 +10,6 @@
 
 #include "stm32f4xx.h"
 #include "common.h"
-#include "Windows.h"
 
 typedef struct
 {
