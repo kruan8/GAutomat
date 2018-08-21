@@ -6,7 +6,7 @@
  */
 
 /*
- * driver pro ctreni tpeloty a vlhkosti z cidla DHT11 a DHT22 (AM2302)
+ * driver pro ctreni tpeloty a vlhkosti z cidla DHT11 a DHT22 (AM2302, nastaveno symbolem DHT22_AM2302 == 1)
  * driver pouziva casovac DHT_TIM pro presne odmerovani delky impulsu
  */
 
@@ -21,6 +21,17 @@
 
 #define DHT_TIM                TIM9
 #define DHT_TIM_CLOCK          RCC_APB2Periph_TIM9
+
+#define MAX_TICS 10000
+#define DHT11_OK 0
+#define DHT11_NO_CONN 1
+#define DHT11_CS_ERROR 2
+
+typedef enum
+{
+  dht_in = 0,
+  dht_out,
+}dht_dir_e;
 
 dht_error_e DHT_Read(dht_data_t* data);
 void DHT_Delay_us(uint16_t nDelay_us);
@@ -41,7 +52,7 @@ void DHT_Init(uint32_t nPCLK_Frequency)
   RCC_APB2PeriphClockCmd(DHT_TIM_CLOCK, ENABLE);
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
   TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
-  TIM_TimeBaseStructure.TIM_Prescaler = nPCLK_Frequency / 1000000; // zde potrebujeme 1MHz
+  TIM_TimeBaseStructure.TIM_Prescaler = nPCLK_Frequency / 1000000; // we need 1MHz here
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -50,14 +61,9 @@ void DHT_Init(uint32_t nPCLK_Frequency)
 //  DBGMCU->APB2FZ |= DBGMCU_TIM9_STOP;
   TIM_Cmd(DHT_TIM, ENABLE);
 
-  // prvni cteni - zresetovani teplomeru)
+  // first reading - deviced reset
   dht_data_t data;
   DHT_Read(&data);
-}
-
-dht_error_e DHT_GetData(dht_data_t* data)
-{
-  return DHT_Read(data);
 }
 
 dht_error_e DHT_Read(dht_data_t* data)
@@ -172,6 +178,11 @@ dht_error_e DHT_Read(dht_data_t* data)
   }
 #endif
   return DHT_OK;
+}
+
+dht_error_e DHT_GetData(dht_data_t* data)
+{
+  return DHT_Read(data);
 }
 
 void DHT_ResetTimer()

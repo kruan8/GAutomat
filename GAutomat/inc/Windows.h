@@ -15,18 +15,6 @@
 #include "common.h"
 #include "XPT2046.h"
 
-typedef struct
-{
-  uint8_t nError;
-  uint8_t nHour;   // hodina RTC
-  uint8_t nMin;    // minuta RTC
-  uint8_t nTemperature;
-  uint8_t nHumidity;
-  bool bLight;
-  bool bHeat;
-  bool bFan;
-}wnd_main_data_t;
-
 typedef enum
 {
   wnd_none = 0,
@@ -48,18 +36,6 @@ typedef struct
   const char* pText;
 }wnd_control;
 
-typedef struct
-{
-  uint8_t nStyle;
-  UG_COLOR nBackColor;
-  const wnd_control* pControls;
-  char* pCaption;
-  void (*Init)(bool bFirst);             // inicializacni kod po vytvoreni okna
-  void (*EventCallBack)( UG_MESSAGE* );  // reakce na udalosti
-  void (*TimerCallBack)();               // casovac okna
-  void (*ExecCallBack)();                // moznost neco vykonat pri behu okna
-  void (*ClickCallBack)();           // moznost reagovat na kliknuti kamkoliv do okna
-}wnd_window_t;
 
 #define TEXT_NORMAL   FONT_12X20
 #define TEXT_BIG      FONT_24X40

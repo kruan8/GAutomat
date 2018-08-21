@@ -7,14 +7,14 @@
 
 #include "timer.h"
 
-
-static volatile uint32_t g_nDelayTimer;
 static volatile uint32_t g_nTicks = 0;
 
 PtrSysTickCallback pSysTickCallback = 0;
 
+
 void Timer_Init()
 {
+  // set Systick to 1ms
   if (SysTick_Config(SystemCoreClock / 1000))
   {
     /* Capture error */
@@ -24,8 +24,8 @@ void Timer_Init()
 
 void Timer_Delay_ms(uint32_t delay_ms)
 {
-  g_nDelayTimer = delay_ms;
-  while (g_nDelayTimer);
+  uint32_t nEndTime = g_nTicks + delay_ms;
+  while (g_nTicks < nEndTime);
 }
 
 uint32_t Timer_GetTicks_ms()
@@ -41,10 +41,6 @@ void Timer_SetSysTickCallback(PtrSysTickCallback pFunction)
 void SysTick_Handler(void)
 {
   g_nTicks++;
-  if (g_nDelayTimer)
-  {
-    g_nDelayTimer--;
-  }
 
   if (pSysTickCallback)
   {

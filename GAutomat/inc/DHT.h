@@ -10,19 +10,6 @@
 
 #include "stm32f4xx.h"
 
-/* Exported constants --------------------------------------------------------*/
-#define MAX_TICS 10000
-#define DHT11_OK 0
-#define DHT11_NO_CONN 1
-#define DHT11_CS_ERROR 2
-
-/* Exported macro ------------------------------------------------------------*/
-typedef enum
-{
-  dht_in = 0,
-  dht_out,
-}dht_dir_e;
-
 typedef struct
 {
   int16_t Temp; /*!< Temperature in tenths of degrees.
