@@ -292,15 +292,6 @@ uint8_t RTCF4_Bcd2ToByte(uint8_t Value)
 //  }
 //}
 
-//void SysTick_Handler(void)
-//{
-//  g_nTicks++;
-//  if (g_nUsartTimer)
-//  {
-//    g_nUsartTimer--;
-//  }
-//}
-
 void RTCF4_Test(void)
 {
   // ---------- Test RTC ---------------

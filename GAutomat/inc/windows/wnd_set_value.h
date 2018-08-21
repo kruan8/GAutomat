@@ -10,7 +10,7 @@
 
 #include "stm32f4xx.h"
 #include "common.h"
-#include "Windows.h"
+#include "wnd_manager.h"
 
 wnd_window_t* WndSetValue_GetTemplate();
 void WndSetValue_Init(bool bFirstInit);

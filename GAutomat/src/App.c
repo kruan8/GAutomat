@@ -14,7 +14,6 @@
 #include "rtcf4.h"
 #include <string.h>
 
-#include "windows/wnd_edit.h"
 
 typedef enum
 {
@@ -24,13 +23,13 @@ typedef enum
   app_re_reserved = PC9,
 }app_re_e;
 
-typedef enum
-{
-  app_re_pos_light = 0,
-  app_re_pos_heat,
-  app_re_pos_fan,
-  app_re_pos_reserved,
-}app_re_position_e;
+//typedef enum
+//{
+//  app_re_pos_light = 0,
+//  app_re_pos_heat,
+//  app_re_pos_fan,
+//  app_re_pos_reserved,
+//}app_re_position_e;
 
 // interval kontroly stavu
 #ifdef DEBUG
@@ -41,6 +40,8 @@ typedef enum
 
 app_re_e g_arrRelays[] = { app_re_light, app_re_heat, app_re_fan, app_re_reserved };
 
+#define RELE_ON(x)      (GPIO_GetPort(x)->BSRRH = GPIO_GetPin(x))
+#define RELE_OFF(x)     (GPIO_GetPort(x)->BSRRL = GPIO_GetPin(x))
 
 void App_Init()
 {
@@ -59,24 +60,27 @@ void App_Init()
     GPIO_ClockEnable(GPIO_GetPort(ePin));
     GPIO_InitStructure.GPIO_Pin = GPIO_GetPin(ePin);
     GPIO_Init(GPIO_GetPort(ePin), &GPIO_InitStructure);
+
+    GPIO_GetPort(ePin)->BSRRL = GPIO_GetPin(ePin);         // relay OFF
+//    RELE_OFF(ePin);
   }
 
   // all relays OFF
-  GPIO_GetPort(app_re_light)->BSRRL = GPIO_GetPin(app_re_light);
-  GPIO_GetPort(app_re_heat)->BSRRL = GPIO_GetPin(app_re_heat);
-  GPIO_GetPort(app_re_fan)->BSRRL = GPIO_GetPin(app_re_fan);
-  GPIO_GetPort(app_re_reserved)->BSRRL = GPIO_GetPin(app_re_reserved);
+//  GPIO_GetPort(app_re_light)->BSRRL = GPIO_GetPin(app_re_light);
+//  GPIO_GetPort(app_re_heat)->BSRRL = GPIO_GetPin(app_re_heat);
+//  GPIO_GetPort(app_re_fan)->BSRRL = GPIO_GetPin(app_re_fan);
+//  GPIO_GetPort(app_re_reserved)->BSRRL = GPIO_GetPin(app_re_reserved);
 }
 
 // provedeme regulace
 void App_RegulationLoop(app_measure_data_t* data)
 {
-  memset(data, 0, sizeof(wnd_main_data_t));
+  memset(data, 0, sizeof(app_measure_data_t));
 
   dht_data_t dht_data;
   if (DHT_GetData(&dht_data) != DHT_OK)
   {
-    // nastavit chybu mereni teploty
+    // DHT device error
     data->nError = err_dht;
   }
 
@@ -85,7 +89,7 @@ void App_RegulationLoop(app_measure_data_t* data)
   data->nTemperature = dht_data.Temp;
   data->nHumidity = dht_data.Hum;
 
-  uint8_t nReState = 0;
+//  uint8_t nReState = 0;
 
   // vystupy se spinaji proti napajeni -> takze relatka neguji
   if (data->nError != err_dht)
@@ -93,7 +97,7 @@ void App_RegulationLoop(app_measure_data_t* data)
     // temperature check
     if (dht_data.Temp < AppData_GetTemperature())
     {
-      nReState |= (1 << app_re_pos_heat);
+//      nReState |= (1 << app_re_pos_heat);
       GPIO_GetPort(app_re_heat)->BSRRH = GPIO_GetPin(app_re_heat); // reset (rele ON)
       data->bHeat = true;
     }
@@ -105,7 +109,7 @@ void App_RegulationLoop(app_measure_data_t* data)
     // max temperature check
     if (dht_data.Temp > AppData_GetTemperatureMax())
     {
-      nReState |= (1 << app_re_pos_fan);
+//      nReState |= (1 << app_re_pos_fan);
       GPIO_GetPort(app_re_fan)->BSRRH = GPIO_GetPin(app_re_fan); // reset (rele ON)
       data->bFan = true;
     }
@@ -123,19 +127,19 @@ void App_RegulationLoop(app_measure_data_t* data)
   uint8_t nHour = dt.hour;
   uint8_t nOn = AppData_GetLightOn();
   uint8_t nOff = AppData_GetLightOff();
-  bool bInvers = false;
+  bool bInverse = false;
 
   // zjistime, jestli interval prechazi do druheho ne
   if (nOff < nOn)
   {
     nOn = AppData_GetLightOff();
     nOff = AppData_GetLightOn();
-    bInvers = true;
+    bInverse = true;
   }
 
-  if ((nHour >= nOn && nHour < nOff) ^ bInvers)
+  if ((nHour >= nOn && nHour < nOff) ^ bInverse)
   {
-    nReState |= (1 << app_re_pos_light);
+//    nReState |= (1 << app_re_pos_light);
     GPIO_GetPort(app_re_light)->BSRRH = GPIO_GetPin(app_re_light); // reset (rele ON)
     data->bLight = true;
   }

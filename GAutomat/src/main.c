@@ -28,6 +28,8 @@
  *        opraveno zpracovani kliknuti na LCD displej
  *        ikony prevedeny do monochrome bitmapy
  *
+ * Todo: pridat hysterezi na teploty
+ *
  *
  */
 
@@ -37,6 +39,7 @@ int main(void)
   RCC_ClocksTypeDef RCC_Clocks;
   RCC_GetClocksFreq(&RCC_Clocks); // Get system clocks
 
+
   // Start Watchdog
   IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
   IWDG_SetPrescaler(IWDG_Prescaler_64);      // 32kHz / 64
@@ -44,7 +47,7 @@ int main(void)
   IWDG_Enable();
   IWDG_WriteAccessCmd(IWDG_WriteAccess_Disable);
 
-  DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE);   // WD stop in debug mode
+  DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP, ENABLE);   // WD stop in debug mode
 
   Timer_Init();
   SPI1_Init();

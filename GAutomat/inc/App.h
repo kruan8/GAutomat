@@ -11,19 +11,7 @@
 
 #include "stm32f4xx.h"
 #include "common.h"
-#include "XPT2046.h"
 
-typedef struct
-{
-  Coordinate lcd[3];  // kalibracni udaje touch screenu
-  bool    lcd_calibrated;
-  uint8_t light_on;
-  uint8_t light_off;
-  uint8_t temperature;
-  uint8_t temp_max;
-  uint32_t crc;
-  // zarovnat na 32bit !!!
-} app_data_t;
 
 typedef struct
 {

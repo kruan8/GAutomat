@@ -10,7 +10,6 @@
 
 #include "stm32f4xx.h"
 #include "common.h"
-#include "Windows.h"
 #include "wnd_manager.h"
 
 wnd_window_t* WndMain_GetTemplate();

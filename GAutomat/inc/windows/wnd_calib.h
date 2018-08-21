@@ -10,7 +10,7 @@
 
 #include "stm32f4xx.h"
 #include "common.h"
-#include "Windows.h"
+#include "XPT2046.h"
 #include "wnd_manager.h"
 
 wnd_window_t* WndCalib_GetTemplate();
