@@ -102,8 +102,7 @@ void ILI9163_PrintText(uint16_t x, uint16_t y, char* text);
 void ILI9163_PrintChar(uint16_t x, uint16_t y, char c);
 
 void ILI9163_ConfigDMA();
-void ILI9163_DMATransfer(uint32_t nMemAddr, uint16_t nLength, bool bMemInc);
-void ILI9163_StartDMA(uint32_t nMemAddr, uint16_t nLength, bool bMemInc);
+void ILI9163_TransferDMA(uint32_t nMemAddr, uint16_t nLength, bool bMemInc);
 
 // sada funkci pro akceleraci uGUI
 void ILI9163_PixelSetRGB565(int16_t x, int16_t y, uint16_t color);

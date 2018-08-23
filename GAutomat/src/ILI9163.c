@@ -295,12 +295,12 @@ void ILI9163_FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t c
     return;
   }
 
-  if (x + w - 1 >= ILI9163_RES_X)
+  if (x + w > ILI9163_RES_X)
   {
     w = ILI9163_RES_X - x;
   }
 
-  if (y + h - 1 >= ILI9163_RES_Y)
+  if (y + h > ILI9163_RES_Y)
   {
     h = ILI9163_RES_Y - y;
   }
@@ -322,7 +322,7 @@ void ILI9163_FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t c
 			nLength = nSize;
 		}
 
-		ILI9163_StartDMA((uint32_t)&color, nLength, false);
+		ILI9163_TransferDMA((uint32_t)&color, nLength, false);
 		while ((DMA_GetFlagStatus(DMA_STREAM, DMA_FLAG_TCIF5) == RESET));
 		nSize -= nLength;
 	}
@@ -369,12 +369,7 @@ void ILI9163_ConfigDMA()
 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
 }
 
-void ILI9163_DMATransfer(uint32_t nMemAddr, uint16_t nLength, bool bMemInc)
-{
-
-}
-
-void ILI9163_StartDMA(uint32_t nMemAddr, uint16_t nLength, bool bMemInc)
+void ILI9163_TransferDMA(uint32_t nMemAddr, uint16_t nLength, bool bMemInc)
 {
 	DMA_Cmd(DMA_STREAM, DISABLE);
 	while ( DMA_STREAM->CR & DMA_SxCR_EN);
@@ -452,7 +447,7 @@ void ILI9163_FillAreaSetPixel(uint16_t nColor)
         nLength = nSize;
       }
 
-      ILI9163_StartDMA((uint32_t)g_pMemFillArea, nLength, true);
+      ILI9163_TransferDMA((uint32_t)g_pMemFillArea, nLength, true);
       while ((DMA_GetFlagStatus(DMA_STREAM, DMA_FLAG_TCIF5) == RESET));
       nSize -= nLength;
     }

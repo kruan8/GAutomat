@@ -12,8 +12,11 @@
 #include <stdio.h>
 
 
-#define WND_WINDOWS_MAX   10
-#define APP_LED_INTERVAL_MS    60000
+#define WND_WINDOWS_MAX       10
+#define APP_LED_INTERVAL_MS   60000
+
+#define X_LCD_SIZE            320
+#define Y_LCD_SIZE            240
 
 UG_GUI gui; // Global GUI structure
 
@@ -40,7 +43,7 @@ void Wnd_CreateButton(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_BUTTON* pButton);
 
 void Wm_Init()
 {
-  UG_Init(&gui, ILI9163_PixelSetRGB565, 320, 240);
+  UG_Init(&gui, ILI9163_PixelSetRGB565, X_LCD_SIZE, Y_LCD_SIZE);
   UG_FontSetHSpace(0);
   UG_DriverRegister(DRIVER_FILL_FRAME, (void*)ILI9163_FillFrame);
 
@@ -102,6 +105,9 @@ static bool Wm_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
 {
   UG_WINDOW window;
   g_bClose = false;
+
+  // smazani artefaktu okolo okna
+  UG_FillFrame(0, 0, X_LCD_SIZE, Y_LCD_SIZE, C_BLACK);
 
   // alokace pro vsechny ovladaci prvky
   uint8_t nControls = 0;          // pocet controls
