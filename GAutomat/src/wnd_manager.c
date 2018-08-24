@@ -43,7 +43,7 @@ void Wnd_CreateButton(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_BUTTON* pButton);
 
 void Wm_Init()
 {
-  UG_Init(&gui, ILI9163_PixelSetRGB565, X_LCD_SIZE, Y_LCD_SIZE);
+  UG_Init(&gui, ILI9163_PixelSetRGB565, ILI9163_GetResolutionX(), ILI9163_GetResolutionY());
   UG_FontSetHSpace(0);
   UG_DriverRegister(DRIVER_FILL_FRAME, (void*)ILI9163_FillFrame);
 

@@ -41,6 +41,41 @@
 #define ILI9163_LED_PIN                    GPIO_Pin_12
 #define ILI9163_LED_GPIO_PORT              GPIOC
 
+// display definition
+//#define LCD_128x160
+//#define LCD_128x128
+//#define LCD_240x320_V
+#define LCD_240x320_H
+
+// horizontalni poloha (connector left)
+#ifdef LCD_240x320_H
+ #define ILI9163_RES_X    320
+ #define ILI9163_RES_Y    240
+ #define ILI9163_OFFSET   0
+ #define ILI9163_SET_MEM  0xE8
+#endif
+
+// vertikalni poloha (connector bottom)
+#ifdef LCD_240x320_V
+ #define ILI9163_RES_X    240
+ #define ILI9163_RES_Y    320
+ #define ILI9163_OFFSET   0
+ #define ILI9163_SET_MEM  0x48
+#endif
+
+#ifdef LCD_128x160
+ #define ILI9163_RES_X    128
+ #define ILI9163_RES_Y    160
+ #define ILI9163_OFFSET   0
+ #define ILI9163_SET_MEM  0x00
+#endif
+
+#ifdef LCD_128x128
+ #define ILI9163_RES_X    128
+ #define ILI9163_RES_Y    128
+ #define ILI9163_OFFSET   32    // chyba zadratovani displeje 128*160, proto je potreba data ukladat do pameti s offsetem
+ #define ILI9163_SET_MEM  0x08
+#endif
 
 #define ILI9163_RST_HIGH					(ILI9163_RST_GPIO_PORT->BSRRL = ILI9163_RST_PIN)
 #define ILI9163_RST_LOW			 			(ILI9163_RST_GPIO_PORT->BSRRH = ILI9163_RST_PIN)
@@ -58,7 +93,10 @@
 
 #define DMA_STREAM                DMA2_Stream5
 
+// buffer pro blokovy prenos bez pouziti DMA
 #define BUFFER_LEN                10
+
+#define DMA_ENABLE
 
 // chyba spatneho zadratovani displeje (128x160)
 // je treba posunout zobrazovanou pamet o 32 radku nize
@@ -154,7 +192,7 @@ void ILI9163_Init()
 //	ILI9163_WriteData16(128);
 //	ILI9163_WriteData16(0);
 
-	ILI9163_WriteToReg(0x29);  // Display on
+	ILI9163_DisplayOn();
 
 	ILI9163_WriteToReg(0x20);  // off Inv mode
 
@@ -395,6 +433,26 @@ void ILI9163_LedOn()
 void ILI9163_LedOff()
 {
   ILI9163_LED_OFF;
+}
+
+void ILI9163_DisplayOn(void)
+{
+  ILI9163_WriteToReg(0x29);
+}
+
+void ILI9163_DisplayOff(void)
+{
+  ILI9163_WriteToReg(0x28);
+}
+
+uint16_t ILI9163_GetResolutionX(void)
+{
+  return ILI9163_RES_X;
+}
+
+uint16_t ILI9163_GetResolutionY(void)
+{
+  return ILI9163_RES_Y;
 }
 
 void ILI9163_PixelSetRGB565(int16_t x, int16_t y, uint16_t color)

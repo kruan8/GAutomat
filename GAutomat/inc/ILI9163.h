@@ -11,44 +11,6 @@
 #include "stm32f4xx.h"
 #include <stdbool.h>
 
-//#define LCD_128x160
-//#define LCD_128x128
-//#define LCD_240x320_V
-#define LCD_240x320_H
-
-
-// horizontalni poloha (connector left)
-#ifdef LCD_240x320_H
- #define ILI9163_RES_X		320
- #define ILI9163_RES_Y		240
- #define ILI9163_OFFSET   0
- #define ILI9163_SET_MEM  0xE8
-#endif
-
-// vertikalni poloha (connector bottom)
-#ifdef LCD_240x320_V
- #define ILI9163_RES_X    240
- #define ILI9163_RES_Y    320
- #define ILI9163_OFFSET   0
- #define ILI9163_SET_MEM  0x48
-#endif
-
-#ifdef LCD_128x160
- #define ILI9163_RES_X		128
- #define ILI9163_RES_Y		160
- #define ILI9163_OFFSET   0
- #define ILI9163_SET_MEM  0x00
-#endif
-
-#ifdef LCD_128x128
- #define ILI9163_RES_X    128
- #define ILI9163_RES_Y    128
- #define ILI9163_OFFSET   32
- #define ILI9163_SET_MEM  0x08
-#endif
-
-#define DMA_ENABLE
-
 typedef enum
 {
   white =   0xFFFF,
@@ -85,15 +47,20 @@ typedef struct
 } BMPbpp1;
 
 void ILI9163_Init();
-void ILI9163_WritePixel(uint16_t x, uint16_t y, uint16_t color);
-void ILI9163_SetAddress(uint16_t xStart, uint16_t yStart, uint16_t xStop, uint16_t yStop);
 void ILI9163_WriteToReg(uint8_t value);
 void ILI9163_WriteData8(uint8_t value);
 void ILI9163_WriteData16(uint16_t value);
 void ILI9163_WriteData16Block(uint16_t* arrBuffer, uint16_t nLength);
 
+void ILI9163_WritePixel(uint16_t x, uint16_t y, uint16_t color);
+void ILI9163_SetAddress(uint16_t xStart, uint16_t yStart, uint16_t xStop, uint16_t yStop);
+
+uint16_t ILI9163_GetResolutionX(void);
+uint16_t ILI9163_GetResolutionY(void);
 void ILI9163_LedOn();
 void ILI9163_LedOff();
+void ILI9163_DisplayOn(void);
+void ILI9163_DisplayOff(void);
 
 void ILI9163_FillScreen(uint16_t color);
 void ILI9163_FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
