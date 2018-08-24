@@ -18,6 +18,6 @@ uint16_t Wnd_CreateWindowSetValue(uint16_t nValue, char* pName);
 uint16_t Wnd_GetEditedValue();
 void WndSetValue_Callback(UG_MESSAGE *msg);
 
-void WndSetValue_SetValue(uint8_t* pnValue, char* strName);
+void WndSetValue_SetValue(uint8_t* pnValue, char* strName, uint8_t nMin, uint8_t nMax);
 
 #endif /* WINDOWS_WND_SET_VALUE_H_ */

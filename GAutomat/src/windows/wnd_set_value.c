@@ -53,6 +53,8 @@ const wnd_window_t wndSetValue =
 
 uint8_t* g_pnValue;
 uint8_t  g_nValue;
+uint8_t g_nMin;
+uint8_t g_nMax;
 char* g_strName;
 char g_strValueText[WND_BUTTON_TEXT_MAX];
 
@@ -68,10 +70,12 @@ void WndSetValue_Init(bool bFirstInit)
   Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
 }
 
-void WndSetValue_SetValue(uint8_t* pnValue, char* strName)
+void WndSetValue_SetValue(uint8_t* pnValue, char* strName, uint8_t nMin, uint8_t nMax)
 {
   g_pnValue = pnValue;
   g_nValue = *pnValue;
+  g_nMin = nMin;
+  g_nMax = nMax;
   g_strName = strName;
 }
 
@@ -84,11 +88,14 @@ void WndSetValue_Callback(UG_MESSAGE *msg)
       switch (msg->sub_id)
       {
       case set_bt_plus:
-        g_nValue++;
-        Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
+        if (g_nValue < g_nMax)
+        {
+          g_nValue++;
+          Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
+        }
         break;
       case set_bt_minus:
-        if (g_nValue)
+        if (g_nValue > g_nMin)
         {
           g_nValue--;
           Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
@@ -110,17 +117,6 @@ void WndSetValue_Callback(UG_MESSAGE *msg)
   {
     switch (msg->sub_id)
     {
-//    case set_tb_name:
-//      UG_TextboxSetText(Wm_GetWnd(), set_tb_name, g_strName);
-//      break;
-//    case set_tb_value:
-//      {
-//        UG_TextboxSetText(Wm_GetWnd(), set_tb_value, g_strValueText);
-//        Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
-//      }
-//      break;
-    default:
-      break;
     }
   }
 }

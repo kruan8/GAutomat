@@ -128,32 +128,32 @@ void WindowEdit_Callback(UG_MESSAGE *msg)
       {
       case edit_bt_time_hour:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(&g_dt.hour, "Cas hodina");
+        WndSetValue_SetValue(&g_dt.hour, "Cas hodina", 0, 23);
         Wm_CloseWindow();
         break;
       case edit_bt_time_min:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(&g_dt.min, "Cas minuta");
+        WndSetValue_SetValue(&g_dt.min, "Cas minuta", 0, 59);
         Wm_CloseWindow();
         break;
       case edit_bt_light_on:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(AppData_GetLightOnPointer(), "Svetlo zap.");
+        WndSetValue_SetValue(AppData_GetLightOnPointer(), "Svetlo zap.", 0, 23);
         Wm_CloseWindow();
         break;
       case edit_bt_light_off:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(AppData_GetLightOffPointer(), "Svetlo vyp.");
+        WndSetValue_SetValue(AppData_GetLightOffPointer(), "Svetlo vyp.", 0, 23);
         Wm_CloseWindow();
         break;
       case edit_bt_temp:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(AppData_GetTemperaturePointer(), "Teplota");
+        WndSetValue_SetValue(AppData_GetTemperaturePointer(), "Teplota", 0, 40);
         Wm_CloseWindow();
         break;
       case edit_bt_tempmax:
         Wm_AddNewWindow(WndSetValue_GetTemplate());
-        WndSetValue_SetValue(AppData_GetTemperatureMaxPointer(), "Teplota max");
+        WndSetValue_SetValue(AppData_GetTemperatureMaxPointer(), "Teplota max", 0, 40);
         Wm_CloseWindow();
         break;
       case edit_bt_p1:
