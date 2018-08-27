@@ -32,6 +32,6 @@ typedef enum
 }app_errors_t;
 
 void App_Init();
-void App_RegulationLoop(app_measure_data_t* data);
+bool App_RegulationLoop(app_measure_data_t* data);
 
 #endif /* APP_H_ */

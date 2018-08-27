@@ -73,7 +73,7 @@ void App_Init()
 }
 
 // provedeme regulace
-void App_RegulationLoop(app_measure_data_t* data)
+bool App_RegulationLoop(app_measure_data_t* data)
 {
   memset(data, 0, sizeof(app_measure_data_t));
 
@@ -148,4 +148,7 @@ void App_RegulationLoop(app_measure_data_t* data)
   {
     GPIO_GetPort(app_re_light)->BSRRL = GPIO_GetPin(app_re_light); // set (rele OFF)
   }
+
+
+  return (data->nError == DHT_OK) ? true : false;
 }

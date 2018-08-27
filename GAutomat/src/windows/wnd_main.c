@@ -62,6 +62,7 @@ const BMPbpp1 BmpLight = { ImgLight, 64, 64, C_YELLOW };
 const BMPbpp1 BmpFan = { ImgFan, 64, 64, C_BLUE };
 const BMPbpp1 BmpHeat = { ImgHeat, 64, 64, C_RED };
 
+static bool               g_bRegulationResult;           // vysledek regulace (kontrola chyby)
 static uint32_t           g_nMeasureTimer;               // odcitani intervalu merici smycky
 static bool               g_bRegulation;                 // flag vyprseni intervalu pro mereni
 static app_measure_data_t g_lastData;                    // posledni namerena data (pro zamezeni zbytecneho prekreslovani)
@@ -92,6 +93,7 @@ void WndMain_Callback(UG_MESSAGE *msg)
 
 void WndMain_Timer_1ms()
 {
+  // odmerovani intervalu regulacni smycky
   if (g_nMeasureTimer == 0)
   {
     g_nMeasureTimer = REGULATION_LOOP_MS;
@@ -100,8 +102,10 @@ void WndMain_Timer_1ms()
 
   g_nMeasureTimer--;
 
-  if (!AppData_GetLcdCalibrated())
+  // pokud neni zakalibrovano nebo je chyba mereni, blikej podsvicenim
+  if (!AppData_GetLcdCalibrated() | !g_bRegulationResult)
   {
+    WM_ResetLedOffTimer();      // zakaz usinani displeje
     if (g_nBlinkTimer == 0)
     {
       g_nBlinkTimer = WND_MAIN_BLINK_INTERVAL_MS;
@@ -123,13 +127,12 @@ void WndMain_Exec()
   }
 
   app_measure_data_t data;
-  App_RegulationLoop(&data);
+  g_bRegulationResult = App_RegulationLoop(&data);
 
   // pokud neni zkalibrovany display, vykreslit znacku
   if (!AppData_GetLcdCalibrated())
   {
     UG_FillFrame(0, 0, 319, 20, C_RED);
-    WM_ResetLedOffTimer();
   }
   else
   {
