@@ -18,30 +18,35 @@
 #define X_LCD_SIZE            320
 #define Y_LCD_SIZE            240
 
-UG_GUI gui; // Global GUI structure
+#define BLINK_INTERVAL        100;
 
-UG_WINDOW*        g_pActualWindow;
+static UG_GUI gui; // Global GUI structure
 
-PtrExeCallback pExeCallback = 0;
-PtrSysTickCallback pSysTickCb = 0;
+static UG_WINDOW*        g_pActualWindow;
 
-wnd_window_t*    g_arrWindowStack[WND_WINDOWS_MAX];
-uint8_t          g_nWindowPos = 0;
+static PtrExeCallback pExeCallback = 0;
+static PtrSysTickCallback pSysTickCb = 0;
 
-wnd_window_t*    g_pNewWindow = NULL;
-bool             g_bClose;                  // zadost o zavreni okna
-bool             g_bEndClick;
-uint32_t         g_nLedOffCounter;
+static wnd_window_t*    g_arrWindowStack[WND_WINDOWS_MAX];
+static uint8_t          g_nWindowPos = 0;
 
-
-static bool Wm_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit);
-static void Wm_SysTickCallback();
-
-void Wnd_CreateTextBox(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_TEXTBOX* pTextbox);
-void Wnd_CreateButton(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_BUTTON* pButton);
+static wnd_window_t*    g_pNewWindow = NULL;
+static bool             g_bClose;                  // zadost o zavreni okna
+static bool             g_bEndClick;
+static uint32_t         g_nLedOffTimer;
+static uint32_t         g_nBlinkCounter;
+static uint32_t         g_nBlinkTimer;
+static bool             g_bBlinkLight;
 
 
-void Wm_Init()
+static bool WM_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit);
+static void WM_SysTickCallback();
+
+void WM_CreateTextBox(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_TEXTBOX* pTextbox);
+void WM_CreateButton(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_BUTTON* pButton);
+
+
+void WM_Init()
 {
   UG_Init(&gui, ILI9163_PixelSetRGB565, ILI9163_GetResolutionX(), ILI9163_GetResolutionY());
   UG_FontSetHSpace(0);
@@ -54,13 +59,14 @@ void Wm_Init()
 
   g_bClose = false;
   g_bEndClick = false;
+  g_bBlinkLight = true;         // blikani musi skoncit ve stavu ON
 
-  g_nLedOffCounter = APP_LED_INTERVAL_MS;
+  g_nLedOffTimer = APP_LED_INTERVAL_MS;
 
-  Timer_SetSysTickCallback(Wm_SysTickCallback);
+  Timer_SetSysTickCallback(WM_SysTickCallback);
 }
 
-bool Wm_Exec()
+bool WM_Exec()
 {
   wnd_window_t* pWnd = NULL;
 
@@ -94,14 +100,14 @@ bool Wm_Exec()
 
     if (pWnd)
     {
-      Wm_CreateWindow(pWnd, bFirstInit);
+      WM_CreateWindow(pWnd, bFirstInit);
     }
   }
 
   return true;
 }
 
-static bool Wm_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
+static bool WM_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
 {
   UG_WINDOW window;
   g_bClose = false;
@@ -162,7 +168,7 @@ static bool Wm_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
     wnd_control* pCtrl = (wnd_control*)(pWndTemplate->pControls + i);
     if (pCtrl->eType == wnd_textbox)
     {
-      Wnd_CreateTextBox(&window, pCtrl, &tb[nTbIndex]);
+      WM_CreateTextBox(&window, pCtrl, &tb[nTbIndex]);
       if (pCtrl->pText)
       {
         strncpy(txtText[nTbIndex], pCtrl->pText, WND_TEXTBOX_TEXT_MAX);
@@ -173,7 +179,7 @@ static bool Wm_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
 
     if (pCtrl->eType == wnd_button)
     {
-      Wnd_CreateButton(&window, pCtrl, &bt[nBtIndex]);
+      WM_CreateButton(&window, pCtrl, &bt[nBtIndex]);
       if (pCtrl->pText)
       {
         strncpy(btnText[nBtIndex], pCtrl->pText, WND_BUTTON_TEXT_MAX);
@@ -198,16 +204,16 @@ static bool Wm_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
     Coordinate* pCoo = Read_XPT2046();
     if (pCoo)
     {
-      if (g_nLedOffCounter == 0)
+      if (g_nLedOffTimer == 0)
       {
         // pri vypnutem displeji rozsvitit a nezpracovavat kliknuti
-        ILI9163_LedOn();
-        g_nLedOffCounter = APP_LED_INTERVAL_MS;
+        ILI9163_LedOn(true);
+        g_nLedOffTimer = APP_LED_INTERVAL_MS;
         continue;
       }
 
       // pri kliknuti nastavit casovac vypnuti LED podsviceni
-      g_nLedOffCounter = APP_LED_INTERVAL_MS;
+      g_nLedOffTimer = APP_LED_INTERVAL_MS;
 
       if (pWndTemplate->ClickCallBack)
       {
@@ -236,40 +242,73 @@ static bool Wm_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
   return true;
 }
 
-UG_WINDOW* Wm_GetWnd()
+UG_WINDOW* WM_GetWnd()
 {
   return g_pActualWindow;
 }
 
-bool Wm_AddNewWindow(wnd_window_t* pWndTemplate)
+bool WM_AddNewWindow(wnd_window_t* pWndTemplate)
 {
   g_pNewWindow = pWndTemplate;
   return true;
 }
 
-void Wm_CloseWindow()
+void WM_CloseWindow()
 {
   g_bClose = true;
 }
 
-static void Wm_SysTickCallback()
+static void WM_SysTickCallback()
 {
   if (pSysTickCb)
   {
     pSysTickCb();
   }
 
-  if (g_nLedOffCounter)
+  if (g_nLedOffTimer)
   {
-    g_nLedOffCounter--;
+    g_nLedOffTimer--;
   }
   else
   {
-    ILI9163_LedOff();
+    ILI9163_LedOn(false);
   }
+
+  // blikani podsvicenim displeje pri neplatne konfiguraci
+  if (g_nBlinkCounter)
+  {
+    if (g_nBlinkTimer)
+    {
+      g_nBlinkTimer--;
+    }
+    else
+    {
+      g_bBlinkLight = !g_bBlinkLight;
+      g_nBlinkTimer = BLINK_INTERVAL;
+      ILI9163_LedOn(g_bBlinkLight);
+      if (g_bBlinkLight)
+      {
+        g_nBlinkCounter--;
+      }
+    }
+  }
+
 }
 
-void Wnd_CreateTextBox(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_TEXTBOX* pTextbox)
+void WM_ResetLedOffTimer()
+{
+  g_nLedOffTimer = APP_LED_INTERVAL_MS;
+}
+
+void WM_SetBlink(uint8_t nBlinkCount)
+{
+  g_nBlinkCounter = nBlinkCount;
+  g_nBlinkTimer = BLINK_INTERVAL;
+  g_bBlinkLight = true;
+  ILI9163_LedOn(g_bBlinkLight);
+}
+
+void WM_CreateTextBox(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_TEXTBOX* pTextbox)
 {
   UG_TextboxCreate(pWnd, pTextbox, pCtrl->id, pCtrl->left, pCtrl->top, pCtrl->right, pCtrl->bottom);
   UG_TextboxSetText(pWnd, pCtrl->id, (char*)pCtrl->pText);
@@ -278,21 +317,21 @@ void Wnd_CreateTextBox(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_TEXTBOX* pTextbox
   UG_TextboxSetForeColor(pWnd, pCtrl->id, pCtrl->text_color);
 }
 
-void Wnd_CreateButton(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_BUTTON* pButton)
+void WM_CreateButton(UG_WINDOW* pWnd, wnd_control* pCtrl, UG_BUTTON* pButton)
 {
   UG_ButtonCreate(pWnd, pButton, pCtrl->id, pCtrl->left, pCtrl->top, pCtrl->right, pCtrl->bottom);
   UG_ButtonSetFont(pWnd, pCtrl->id, pCtrl->font);
   UG_ButtonSetForeColor(pWnd, pCtrl->id, pCtrl->text_color);
 }
 
-void Wnd_SetButtonTextFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
+void WM_SetButtonTextFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
 {
   char* pText = UG_ButtonGetText(pWnd, nId);
   snprintf(pText, WND_BUTTON_TEXT_MAX, "%lu", nValue);
   UG_ButtonSetText(pWnd, nId, pText);
 }
 
-void Wnd_SetTextboxFromInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
+void WM_SetTextboxFromInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue)
 {
   char * pText = UG_TextboxGetText(pWnd, nId);
   snprintf(pText, WND_BUTTON_TEXT_MAX, "%lu", nValue);

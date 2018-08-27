@@ -9,7 +9,7 @@
 
 static volatile uint32_t g_nTicks = 0;
 
-PtrSysTickCallback pSysTickCallback = 0;
+static PtrSysTickCallback pSysTickCallback = 0;
 
 
 void Timer_Init()

@@ -25,7 +25,7 @@ typedef enum
   set_bt_cancel,
 }wnd_set_bt_e;
 
-const wnd_control arrSetControls[] =
+static const wnd_control arrSetControls[] =
 {
   //   type      |left | top | right | bott |     id        |  alignment  | tcolor  |    font    | text
     { wnd_textbox,  50,   40,    250,    70, set_tb_name,    ALIGN_CENTER,  C_BLACK, &TEXT_NORMAL, NULL },
@@ -38,7 +38,7 @@ const wnd_control arrSetControls[] =
     {   wnd_none,    0,     0,     0,     0,          0,                0,   C_BLUE, &TEXT_NORMAL, "" },
 };
 
-const wnd_window_t wndSetValue =
+static const wnd_window_t wndSetValue =
 {
     WND_STYLE_2D | WND_STYLE_SHOW_TITLE,
     0xEF7D,
@@ -51,12 +51,12 @@ const wnd_window_t wndSetValue =
     NULL,
 };
 
-uint8_t* g_pnValue;
-uint8_t  g_nValue;
-uint8_t g_nMin;
-uint8_t g_nMax;
-char* g_strName;
-char g_strValueText[WND_BUTTON_TEXT_MAX];
+static uint8_t* g_pnValue;
+static uint8_t  g_nValue;
+static uint8_t  g_nMin;
+static uint8_t  g_nMax;
+static char*    g_strName;
+static char     g_strValueText[WND_BUTTON_TEXT_MAX];
 
 wnd_window_t* WndSetValue_GetTemplate()
 {
@@ -65,9 +65,9 @@ wnd_window_t* WndSetValue_GetTemplate()
 
 void WndSetValue_Init(bool bFirstInit)
 {
-  UG_TextboxSetText(Wm_GetWnd(), set_tb_name, g_strName);
-  UG_TextboxSetText(Wm_GetWnd(), set_tb_value, g_strValueText);
-  Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
+  UG_TextboxSetText(WM_GetWnd(), set_tb_name, g_strName);
+  UG_TextboxSetText(WM_GetWnd(), set_tb_value, g_strValueText);
+  WM_SetTextboxFromInt(WM_GetWnd(), set_tb_value, g_nValue);
 }
 
 void WndSetValue_SetValue(uint8_t* pnValue, char* strName, uint8_t nMin, uint8_t nMax)
@@ -91,23 +91,23 @@ void WndSetValue_Callback(UG_MESSAGE *msg)
         if (g_nValue < g_nMax)
         {
           g_nValue++;
-          Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
+          WM_SetTextboxFromInt(WM_GetWnd(), set_tb_value, g_nValue);
         }
         break;
       case set_bt_minus:
         if (g_nValue > g_nMin)
         {
           g_nValue--;
-          Wnd_SetTextboxFromInt(Wm_GetWnd(), set_tb_value, g_nValue);
+          WM_SetTextboxFromInt(WM_GetWnd(), set_tb_value, g_nValue);
         }
 
         break;
       case set_bt_ok:
         *g_pnValue = g_nValue;
-        Wm_CloseWindow();
+        WM_CloseWindow();
         break;
       case set_bt_cancel:
-        Wm_CloseWindow();
+        WM_CloseWindow();
         break;
       }
     }

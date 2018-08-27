@@ -23,19 +23,18 @@
 
 #define XPT2046_PRESS_DELAY_MS   200
 
+#define THRESHOLD 2
+
 /* Private variables ---------------------------------------------------------*/
 static Matrix      matrix;
 static Coordinate  screen;
-
-/* Private define ------------------------------------------------------------*/
-#define THRESHOLD 2
 
 // controller specific functions - should not be used outside
 static bool read_IRQ(void);
 static void WR_CMD (uint8_t cmd);
 static uint16_t RD_AD(void);
 
-PtrXPT2046ClickCallback pXPT2046ClickCallback = 0;
+static PtrXPT2046ClickCallback pXPT2046ClickCallback = 0;
 
 void XPT2046_Init(void) 
 { 

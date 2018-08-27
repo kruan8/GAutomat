@@ -38,7 +38,7 @@ typedef enum
   #define APP_CHECK_INTERVAL_MS   10000
 #endif
 
-app_re_e g_arrRelays[] = { app_re_light, app_re_heat, app_re_fan, app_re_reserved };
+static app_re_e g_arrRelays[] = { app_re_light, app_re_heat, app_re_fan, app_re_reserved };
 
 #define RELE_ON(x)      (GPIO_GetPort(x)->BSRRH = GPIO_GetPin(x))
 #define RELE_OFF(x)     (GPIO_GetPort(x)->BSRRL = GPIO_GetPin(x))

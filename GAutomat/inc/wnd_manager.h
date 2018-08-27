@@ -56,13 +56,16 @@ typedef struct
 
 typedef void(*PtrExeCallback) (void);
 
-void Wm_Init();
-bool Wm_Exec();
-bool Wm_AddNewWindow(wnd_window_t* pWndTemplate);
-void Wm_CloseWindow();
-UG_WINDOW* Wm_GetWnd();
+void WM_Init();
+bool WM_Exec();
+bool WM_AddNewWindow(wnd_window_t* pWndTemplate);
+void WM_CloseWindow();
+UG_WINDOW* WM_GetWnd();
 
-void Wnd_SetButtonTextFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue);
-void Wnd_SetTextboxFromInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue);
+void WM_ResetLedOffTimer();
+void WM_SetBlink(uint8_t nBlinkCount);
+
+void WM_SetButtonTextFormInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue);
+void WM_SetTextboxFromInt(UG_WINDOW* pWnd, uint8_t nId, uint32_t nValue);
 
 #endif /* WND_MANAGER_H_ */

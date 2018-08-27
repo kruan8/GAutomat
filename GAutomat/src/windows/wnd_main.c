@@ -17,13 +17,17 @@
 #include "../Icons/fan.c"
 #include "../Icons/heat.c"
 
+// interval mereni
 #ifdef DEBUG
-  #define REGULATION_LOOP_MS    1000
+  #define REGULATION_LOOP_MS         1000
 #elif
-  #define REGULATION_LOOP_MS   10000
+  #define REGULATION_LOOP_MS        10000
 #endif
 
-#define WND_MAIN_ICON_SIZE      64
+#define WND_MAIN_ICON_SIZE             64       // velikost ikon pro zobrazeni stavu automatu
+
+#define WND_MAIN_BLINK_COUNT            5       // pocet bliknuti pri neplatne kalibraci
+#define WND_MAIN_BLINK_INTERVAL_MS   3000       // interval mezi zablikanim
 
 typedef enum
 {
@@ -32,7 +36,7 @@ typedef enum
   main_tb_hum,
 }wnd_main_tb_e;
 
-const wnd_control arrMainControls[] =
+static const wnd_control arrMainControls[] =
 {
   //  type       | left | top | right | bott |     id     |  alignment  |  tcolor  | font    |  text
     { wnd_textbox,  70,   30,    250,     85, main_tb_time, ALIGN_CENTER,   C_CYAN, &TEXT_BIG,   "" },
@@ -41,7 +45,7 @@ const wnd_control arrMainControls[] =
     { wnd_none,      0,    0,      0,      0,            0,            0,        0,         0,   "" },
 };
 
-const wnd_window_t wndMain =
+static const wnd_window_t wndMain =
 {
     WND_STYLE_2D | WND_STYLE_HIDE_TITLE,
     C_BLACK,
@@ -58,9 +62,10 @@ const BMPbpp1 BmpLight = { ImgLight, 64, 64, C_YELLOW };
 const BMPbpp1 BmpFan = { ImgFan, 64, 64, C_BLUE };
 const BMPbpp1 BmpHeat = { ImgHeat, 64, 64, C_RED };
 
-uint32_t           g_nMeasureTimer;
-bool               g_bRegulation;
-app_measure_data_t g_lastData;
+static uint32_t           g_nMeasureTimer;               // odcitani intervalu merici smycky
+static bool               g_bRegulation;                 // flag vyprseni intervalu pro mereni
+static app_measure_data_t g_lastData;                    // posledni namerena data (pro zamezeni zbytecneho prekreslovani)
+static uint32_t           g_nBlinkTimer;                 // timer pro odmerovani intervali mezi zablikanim
 
 wnd_window_t* WndMain_GetTemplate()
 {
@@ -70,6 +75,7 @@ wnd_window_t* WndMain_GetTemplate()
 void WndMain_Init(bool bFirstInit)
 {
   g_nMeasureTimer = 0;
+  g_nBlinkTimer = 0;
   memset (&g_lastData, 0, sizeof (g_lastData));
 }
 
@@ -93,6 +99,20 @@ void WndMain_Timer_1ms()
   }
 
   g_nMeasureTimer--;
+
+  if (!AppData_GetLcdCalibrated())
+  {
+    if (g_nBlinkTimer == 0)
+    {
+      g_nBlinkTimer = WND_MAIN_BLINK_INTERVAL_MS;
+      WM_SetBlink(WND_MAIN_BLINK_COUNT);
+    }
+    else
+    {
+      g_nBlinkTimer--;
+    }
+  }
+
 }
 
 void WndMain_Exec()
@@ -108,47 +128,48 @@ void WndMain_Exec()
   // pokud neni zkalibrovany display, vykreslit znacku
   if (!AppData_GetLcdCalibrated())
   {
-    UG_FillFrame(0, 0, 319, 10, C_RED);
+    UG_FillFrame(0, 0, 319, 20, C_RED);
+    WM_ResetLedOffTimer();
   }
   else
   {
-    UG_FillFrame(0, 0, 319, 10, C_BLACK);
+    UG_FillFrame(0, 0, 319, 20, C_BLACK);
   }
 
   // vypis casu
   char* text;
-  text = UG_TextboxGetText(Wm_GetWnd(), main_tb_time);
+  text = UG_TextboxGetText(WM_GetWnd(), main_tb_time);
   snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%02d:%02d", data.nHour, data.nMin);
-  UG_TextboxSetText(Wm_GetWnd(), main_tb_time, text);
+  UG_TextboxSetText(WM_GetWnd(), main_tb_time, text);
 
   // vypis teploty a vlhkosti
   if (data.nError != 1)
   {
     if (data.nTemperature != g_lastData.nTemperature)
     {
-      text = UG_TextboxGetText(Wm_GetWnd(), main_tb_temp);
+      text = UG_TextboxGetText(WM_GetWnd(), main_tb_temp);
       snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%2d\370C", data.nTemperature);
-      UG_TextboxSetText(Wm_GetWnd(), main_tb_temp, text);
+      UG_TextboxSetText(WM_GetWnd(), main_tb_temp, text);
       g_lastData.nTemperature = data.nTemperature;
     }
 
     if (data.nHumidity != g_lastData.nHumidity)
     {
-      text = UG_TextboxGetText(Wm_GetWnd(), main_tb_hum);
+      text = UG_TextboxGetText(WM_GetWnd(), main_tb_hum);
       snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%2d %%", data.nHumidity);
-      UG_TextboxSetText(Wm_GetWnd(), main_tb_hum, text);
+      UG_TextboxSetText(WM_GetWnd(), main_tb_hum, text);
       g_lastData.nHumidity = data.nHumidity;
     }
   }
   else if (data.nError == 1)   // chyba teploty
   {
-    text = UG_TextboxGetText(Wm_GetWnd(), main_tb_temp);
+    text = UG_TextboxGetText(WM_GetWnd(), main_tb_temp);
     snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "--\370C");
-    UG_TextboxSetText(Wm_GetWnd(), main_tb_temp, text);
+    UG_TextboxSetText(WM_GetWnd(), main_tb_temp, text);
 
-    text = UG_TextboxGetText(Wm_GetWnd(), main_tb_hum);
+    text = UG_TextboxGetText(WM_GetWnd(), main_tb_hum);
     snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "-- %%");
-    UG_TextboxSetText(Wm_GetWnd(), main_tb_hum, text);
+    UG_TextboxSetText(WM_GetWnd(), main_tb_hum, text);
   }
 
   // vykresleni symbolu LIGHT
@@ -203,7 +224,7 @@ void WndMain_ClickCallBack()
 {
   if (AppData_GetLcdCalibrated())
   {
-    Wm_AddNewWindow(WndEdit_GetTemplate());
-    Wm_CloseWindow();
+    WM_AddNewWindow(WndEdit_GetTemplate());
+    WM_CloseWindow();
   }
 }

@@ -27,6 +27,8 @@
  * v0.1 - prepracovana sprava oken (window manager)
  *        opraveno zpracovani kliknuti na LCD displej
  *        ikony prevedeny do monochrome bitmapy
+ *        pri neplatne kalibraci natahne default a jde do mereni
+ *        blikani displeje pri neplatne kalibraci
  *
  * Todo: pridat hysterezi na teploty
  *
@@ -59,7 +61,7 @@ int main(void)
 
 //  RTCF4_Test();
 
-  Wm_Init();
-  Wm_AddNewWindow(WndStart_GetTemplate());
-  Wm_Exec();
+  WM_Init();
+  WM_AddNewWindow(WndStart_GetTemplate());
+  WM_Exec();
 }

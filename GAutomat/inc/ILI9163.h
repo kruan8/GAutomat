@@ -57,8 +57,7 @@ void ILI9163_SetAddress(uint16_t xStart, uint16_t yStart, uint16_t xStop, uint16
 
 uint16_t ILI9163_GetResolutionX(void);
 uint16_t ILI9163_GetResolutionY(void);
-void ILI9163_LedOn();
-void ILI9163_LedOff();
+void ILI9163_LedOn(bool bEnable);
 void ILI9163_DisplayOn(void);
 void ILI9163_DisplayOff(void);
 

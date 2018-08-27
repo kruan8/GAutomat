@@ -17,7 +17,7 @@ typedef enum
   calib_tb_text2,
 }wnd_calib_e;
 
-const wnd_control arrCalibControls[] =
+static const wnd_control arrCalibControls[] =
 {
   //  type       | left | top | right | bott |     id         |  alignment  | tcolor  | font       |  text
     { wnd_textbox,  80,   70,    240,   100,    calib_tb_text1, ALIGN_CENTER,  C_CYAN, &TEXT_NORMAL,   "KALIBRACE" },
@@ -26,7 +26,7 @@ const wnd_control arrCalibControls[] =
     { wnd_none,      0,    0,      0,     0,                 0,            0,       0,            0,        "" },
 };
 
-const wnd_window_t wndCalib =
+static const wnd_window_t wndCalib =
 {
     WND_STYLE_2D | WND_STYLE_HIDE_TITLE,
     C_BLACK,
@@ -40,11 +40,11 @@ const wnd_window_t wndCalib =
 };
 
 // souradnice kalibracnich znacek
-const Coordinate  g_CrossPos[3] = { {32, 24}, {288, 120}, {160, 216} };
+static const Coordinate  g_CrossPos[3] = { {32, 24}, {288, 120}, {160, 216} };
 
-uint8_t g_nClickCounter;        // citac kliknuti kalibrace
-Coordinate* g_pCoordinate;      // ulozeni kalibrace
-bool        g_bFirstSymbol;     // flag pro vykresleni 1. symbolu
+static uint8_t g_nClickCounter;        // citac kliknuti kalibrace
+static Coordinate* g_pCoordinate;      // ulozeni kalibrace
+static bool        g_bFirstSymbol;     // flag pro vykresleni 1. symbolu
 
 
 wnd_window_t* WndCalib_GetTemplate()
@@ -89,8 +89,8 @@ void WndCalib_ClickCallBack(Coordinate* pScreenCoordinate)
     AppData_SaveConfig();
     AppData_SetLcdCalibrated(true);
     XPT2046_SetCalibrationMatrix((Coordinate*) &g_CrossPos[0], g_pCoordinate);
-    Wm_AddNewWindow(WndMain_GetTemplate());
-    Wm_CloseWindow();
+    WM_AddNewWindow(WndMain_GetTemplate());
+    WM_CloseWindow();
   }
 
   DrawSymbol();

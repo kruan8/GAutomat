@@ -28,7 +28,7 @@
 #define RTC_CHARISNUM(x)                ((x) >= '0' && (x) <= '9')
 
 /* Days in a month */
-const uint8_t TM_RTC_Months[2][12] = {
+static const uint8_t TM_RTC_Months[2][12] = {
   {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}, /* Not leap year */
   {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}  /* Leap year */
 };

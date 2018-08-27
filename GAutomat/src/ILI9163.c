@@ -102,19 +102,19 @@
 // je treba posunout zobrazovanou pamet o 32 radku nize
 // s timto je potreba pocitat i pri aplikaci vertikalniho rolovani
 
-TextParam params;
+static TextParam params;
 
 // akcelerace uGUI - FILL AREA DRIVER
 // void(*g_push_pixel)(uint16_t);
-uint16_t *g_pMemFillArea;
-uint16_t g_nPixelCount;
-uint16_t g_nPixelCounter;
-uint16_t g_nCharPosX;
-uint16_t g_nCharPosY;
-uint16_t g_nCharEndX;
-uint16_t g_nCharEndY;
+static uint16_t *g_pMemFillArea;
+static uint16_t g_nPixelCount;
+static uint16_t g_nPixelCounter;
+static uint16_t g_nCharPosX;
+static uint16_t g_nCharPosY;
+static uint16_t g_nCharEndX;
+static uint16_t g_nCharEndY;
 
-uint16_t g_arrBuffer[BUFFER_LEN];
+static uint16_t g_arrBuffer[BUFFER_LEN];
 
 void ILI9163_Init()
 {
@@ -425,14 +425,16 @@ void ILI9163_TransferDMA(uint32_t nMemAddr, uint16_t nLength, bool bMemInc)
 	DMA_Cmd(DMA_STREAM, ENABLE);
 }
 
-void ILI9163_LedOn()
+void ILI9163_LedOn(bool bEnable)
 {
-  ILI9163_LED_ON;
-}
-
-void ILI9163_LedOff()
-{
-  ILI9163_LED_OFF;
+  if (bEnable)
+  {
+    ILI9163_LED_ON;
+  }
+  else
+  {
+    ILI9163_LED_OFF;
+  }
 }
 
 void ILI9163_DisplayOn(void)

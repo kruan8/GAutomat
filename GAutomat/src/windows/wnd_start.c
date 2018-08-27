@@ -11,6 +11,8 @@
 #include "app_data.h"
 #include "timer.h"
 
+#define WND_START_DELAY_MS         2000
+
 typedef enum
 {
   start_tb_grow = 0,
@@ -18,7 +20,7 @@ typedef enum
   start_tb_date,
 }wnd_start_tb_e;
 
-const wnd_control arrStartControls[] =
+static const wnd_control arrStartControls[] =
 {
   //  type       | left | top | right | bott |     id        |  alignment  |  tcolor  | font       |  text
     { wnd_textbox, 110,   50,    210,   100,    start_tb_grow, ALIGN_CENTER,   C_LIME,    &TEXT_BIG,    "GROW" },
@@ -27,9 +29,7 @@ const wnd_control arrStartControls[] =
     { wnd_none,      0,    0,      0,     0,                0,            0,        0,            0,        "" },
 };
 
-const char g_strVer[] = { __DATE__ };
-
-const wnd_window_t wndStart =
+static const wnd_window_t wndStart =
 {
     WND_STYLE_2D | WND_STYLE_HIDE_TITLE,
     C_BLACK,
@@ -42,9 +42,8 @@ const wnd_window_t wndStart =
     WndStart_ClickCallBack,
 };
 
-#define WND_START_DELAY_MS         2000
 
-uint32_t g_nStartTime;
+static uint32_t g_nStartTime;
 
 wnd_window_t* WndStart_GetTemplate()
 {
@@ -75,13 +74,13 @@ void WndStart_Timer_1ms()
       XPT2046_SetCalibrationMatrix(WndCalib_GetCoordinate(), AppData_GetCoordinatePointer());
     }
 
-    Wm_AddNewWindow(WndMain_GetTemplate());
-    Wm_CloseWindow();
+    WM_AddNewWindow(WndMain_GetTemplate());
+    WM_CloseWindow();
   }
 }
 
 void WndStart_ClickCallBack()
 {
-  Wm_AddNewWindow(WndCalib_GetTemplate());
-  Wm_CloseWindow();
+  WM_AddNewWindow(WndCalib_GetTemplate());
+  WM_CloseWindow();
 }

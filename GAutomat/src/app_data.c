@@ -21,7 +21,7 @@ typedef struct
 
 #define APPDATA_BACKUP_RAM_ADDR          1        // prvni backup registr pro zapis (??? adresa 0 se mi pri resetu prepisovala ???)
 
-app_data_t g_appData;
+static app_data_t g_appData;
 
 Coordinate* AppData_GetCoordinatePointer()
 {
@@ -115,8 +115,6 @@ void AppData_SetConfigDefault()
 
 bool AppData_LoadConfig()
 {
-  uint8_t nS = sizeof (app_data_t);
-
   uint8_t nSize = sizeof(app_data_t) / sizeof(uint32_t);
   uint32_t *pData = (uint32_t*)&g_appData;
   uint32_t nIndex = APPDATA_BACKUP_RAM_ADDR;
