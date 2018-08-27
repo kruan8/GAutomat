@@ -20,7 +20,7 @@
 // interval mereni
 #ifdef DEBUG
   #define REGULATION_LOOP_MS         1000
-#elif
+#else
   #define REGULATION_LOOP_MS        10000
 #endif
 

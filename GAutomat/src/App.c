@@ -34,7 +34,7 @@ typedef enum
 // interval kontroly stavu
 #ifdef DEBUG
   #define APP_CHECK_INTERVAL_MS    1000
-#elif
+#else
   #define APP_CHECK_INTERVAL_MS   10000
 #endif
 
@@ -78,7 +78,8 @@ void App_RegulationLoop(app_measure_data_t* data)
   memset(data, 0, sizeof(app_measure_data_t));
 
   dht_data_t dht_data;
-  if (DHT_GetData(&dht_data) != DHT_OK)
+  dht_error_e eErr = DHT_GetData(&dht_data);
+  if (eErr != DHT_OK)
   {
     // DHT device error
     data->nError = err_dht;

@@ -51,10 +51,10 @@ void DHT_Init(uint32_t nPCLK_Frequency)
 
   RCC_APB2PeriphClockCmd(DHT_TIM_CLOCK, ENABLE);
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-  TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
   TIM_TimeBaseStructure.TIM_Prescaler = nPCLK_Frequency / 1000000; // we need 1MHz here
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 
   TIM_TimeBaseInit(DHT_TIM, &TIM_TimeBaseStructure);
 
@@ -70,9 +70,13 @@ dht_error_e DHT_Read(dht_data_t* data)
 {
   uint8_t buff[5];
 
-  /* Set pin low for 18ms */
+  /* Set pin low for min 18ms */
   DHT_PIN_LOW;
-  DHT_Delay_us(18000);
+#if (DHT22_AM2302 == 1)
+  DHT_Delay_us(5000);
+#else
+  DHT_Delay_us(20000);
+#endif
 
   /* Set pin high to ~30 us */
   DHT_PIN_HIGH;
@@ -82,7 +86,7 @@ dht_error_e DHT_Read(dht_data_t* data)
   DHT_ResetTimer();
   while (DHT_PORT->IDR & DHT_PIN)
   {
-    if (DHT_GetTimerCounter() > 20)
+    if (DHT_GetTimerCounter() > 80)
     {
       return DHT_CONNECTION_ERROR;
     }
