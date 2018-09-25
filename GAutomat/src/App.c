@@ -19,8 +19,8 @@ typedef enum
 {
   app_re_light =    PC6,
   app_re_heat =     PC7,
-  app_re_fan =      PC8,
-  app_re_reserved = PC9,
+  app_re_fan =      PC9,  // prohozeni pro pepovo skrinku (vetrak je vpravo)
+  app_re_reserved = PC8,
 }app_re_e;
 
 //typedef enum
