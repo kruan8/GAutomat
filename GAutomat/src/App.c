@@ -64,18 +64,12 @@ void App_Init()
     GPIO_GetPort(ePin)->BSRRL = GPIO_GetPin(ePin);         // relay OFF
 //    RELE_OFF(ePin);
   }
-
-  // all relays OFF
-//  GPIO_GetPort(app_re_light)->BSRRL = GPIO_GetPin(app_re_light);
-//  GPIO_GetPort(app_re_heat)->BSRRL = GPIO_GetPin(app_re_heat);
-//  GPIO_GetPort(app_re_fan)->BSRRL = GPIO_GetPin(app_re_fan);
-//  GPIO_GetPort(app_re_reserved)->BSRRL = GPIO_GetPin(app_re_reserved);
 }
 
 // provedeme regulace
 bool App_RegulationLoop(app_measure_data_t* data)
 {
-  memset(data, 0, sizeof(app_measure_data_t));
+//  memset(data, 0, sizeof(app_measure_data_t));
 
   dht_data_t dht_data;
   dht_error_e eErr = DHT_GetData(&dht_data);
@@ -85,38 +79,40 @@ bool App_RegulationLoop(app_measure_data_t* data)
     data->nError = err_dht;
   }
 
-  dht_data.Temp /= 10;
+  dht_data.Temp /= 10;  // odstranit desetinny
 
   data->nTemperature = dht_data.Temp;
   data->nHumidity = dht_data.Hum;
 
-//  uint8_t nReState = 0;
-
   // vystupy se spinaji proti napajeni -> takze relatka neguji
   if (data->nError != err_dht)
   {
-    // temperature check
-    if (dht_data.Temp < AppData_GetTemperature())
+    // temperature check (hysterezis +-1C)
+    if (dht_data.Temp <= AppData_GetTemperature() - 1)
     {
-//      nReState |= (1 << app_re_pos_heat);
-      GPIO_GetPort(app_re_heat)->BSRRH = GPIO_GetPin(app_re_heat); // reset (rele ON)
+      RELE_ON(app_re_heat);
+//      GPIO_GetPort(app_re_heat)->BSRRH = GPIO_GetPin(app_re_heat); // reset (rele ON)
       data->bHeat = true;
     }
-    else
+    else if (dht_data.Temp >= AppData_GetTemperature() + 1)
     {
-      GPIO_GetPort(app_re_heat)->BSRRL = GPIO_GetPin(app_re_heat); // set (rele OFF)
+      RELE_OFF(app_re_heat);
+//      GPIO_GetPort(app_re_heat)->BSRRL = GPIO_GetPin(app_re_heat); // set (rele OFF)
+      data->bHeat = false;
     }
 
-    // max temperature check
-    if (dht_data.Temp > AppData_GetTemperatureMax())
+    // max temperature check  (hysterezis +-1C)
+    if (dht_data.Temp >= AppData_GetTemperatureMax() + 1)
     {
-//      nReState |= (1 << app_re_pos_fan);
-      GPIO_GetPort(app_re_fan)->BSRRH = GPIO_GetPin(app_re_fan); // reset (rele ON)
+      RELE_ON(app_re_fan);
+//      GPIO_GetPort(app_re_fan)->BSRRH = GPIO_GetPin(app_re_fan); // reset (rele ON)
       data->bFan = true;
     }
-    else
+    else if (dht_data.Temp <= AppData_GetTemperatureMax() - 1)
     {
-      GPIO_GetPort(app_re_fan)->BSRRL = GPIO_GetPin(app_re_fan); // set (rele OFF)
+      RELE_OFF(app_re_fan);
+//      GPIO_GetPort(app_re_fan)->BSRRL = GPIO_GetPin(app_re_fan); // set (rele OFF)
+      data->bFan = false;
     }
   }
 
@@ -140,15 +136,15 @@ bool App_RegulationLoop(app_measure_data_t* data)
 
   if ((nHour >= nOn && nHour < nOff) ^ bInverse)
   {
-//    nReState |= (1 << app_re_pos_light);
-    GPIO_GetPort(app_re_light)->BSRRH = GPIO_GetPin(app_re_light); // reset (rele ON)
+    RELE_ON(app_re_light);
+//    GPIO_GetPort(app_re_light)->BSRRH = GPIO_GetPin(app_re_light); // reset (rele ON)
     data->bLight = true;
   }
   else
   {
-    GPIO_GetPort(app_re_light)->BSRRL = GPIO_GetPin(app_re_light); // set (rele OFF)
+    RELE_OFF(app_re_light);
+//    GPIO_GetPort(app_re_light)->BSRRL = GPIO_GetPin(app_re_light); // set (rele OFF)
   }
-
 
   return (data->nError == DHT_OK) ? true : false;
 }

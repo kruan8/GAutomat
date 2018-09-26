@@ -15,14 +15,14 @@
 
 typedef struct
 {
-  uint8_t nError;
-  uint8_t nHour;   // hodina RTC
-  uint8_t nMin;    // minuta RTC
-  uint8_t nTemperature;
-  uint8_t nHumidity;
-  bool bLight;
-  bool bHeat;
-  bool bFan;
+  uint8_t nError;              // chyba regulacni smycky
+  uint8_t nHour;               // hodina RTC
+  uint8_t nMin;                // minuta RTC
+  uint8_t nTemperature;        // namerena teplota
+  uint8_t nHumidity;           // namerena vlhkost
+  bool bLight;                 // stav svetla
+  bool bHeat;                  // stav vyhrivani
+  bool bFan;                   // stav vetraku
 } app_measure_data_t;
 
 typedef enum

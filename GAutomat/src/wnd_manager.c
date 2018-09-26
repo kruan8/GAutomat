@@ -13,7 +13,12 @@
 
 
 #define WND_WINDOWS_MAX       10
-#define APP_LED_INTERVAL_MS   60000
+
+#ifdef DEBUG
+  #define APP_LED_INTERVAL_MS    60000    // 1 minuta
+#else
+  #define APP_LED_INTERVAL_MS   300000    // 5 minut
+#endif
 
 #define X_LCD_SIZE            320
 #define Y_LCD_SIZE            240

@@ -128,6 +128,7 @@ void WndMain_Exec()
   }
 
   app_measure_data_t data;
+  memcpy(&data, &g_lastData, sizeof (app_measure_data_t));
   g_bRegulationResult = App_RegulationLoop(&data);
 
   // pokud neni zkalibrovany display, vykreslit znacku
