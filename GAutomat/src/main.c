@@ -28,10 +28,8 @@
  *        opraveno zpracovani kliknuti na LCD displej
  *        ikony prevedeny do monochrome bitmapy
  *        pri neplatne kalibraci natahne default a jde do mereni
- *        blikani displeje pri neplatne kalibraci
- *
- * Todo: pridat hysterezi na teploty
- *
+ *        blikani displeje pri neplatne kalibraci,
+ *        hystereze pro teploty
  *
  */
 

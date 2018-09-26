@@ -68,6 +68,8 @@ static bool               g_bRegulation;                 // flag vyprseni interv
 static app_measure_data_t g_lastData;                    // posledni namerena data (pro zamezeni zbytecneho prekreslovani)
 static uint32_t           g_nBlinkTimer;                 // timer pro odmerovani intervali mezi zablikanim
 
+static uint32_t           g_nIndicationTimer;            // timer pro indikaci behu zarizeni
+
 wnd_window_t* WndMain_GetTemplate()
 {
   return (wnd_window_t*) &wndMain;
@@ -94,6 +96,10 @@ void WndMain_Callback(UG_MESSAGE *msg)
 
 void WndMain_Timer_1ms()
 {
+  // odmerovani indikace behu
+  g_nIndicationTimer++;
+
+
   // odmerovani intervalu regulacni smycky
   if (g_nMeasureTimer == 0)
   {
@@ -122,6 +128,19 @@ void WndMain_Timer_1ms()
 
 void WndMain_Exec()
 {
+  if (g_nIndicationTimer & 0x400)
+  {
+    g_nIndicationTimer = 0;
+    UG_FontSelect(&TEXT_BIG);
+    UG_PutChar(' ', 148, 38, C_CYAN, C_BLACK);
+  }
+
+  if (g_nIndicationTimer & 0x100)
+  {
+    UG_FontSelect(&TEXT_BIG);
+    UG_PutChar(':', 148, 38, C_CYAN, C_BLACK);
+  }
+
   if (!g_bRegulation)
   {
     return;
