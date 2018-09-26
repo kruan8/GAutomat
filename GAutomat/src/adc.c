@@ -10,6 +10,8 @@
 
 #define REF_VOLTAGE_MV     3300L
 
+#define ADC_SAMPLES           10
+
 void Adc_Init(void)
 {
   // Enable clock for ADC1
@@ -36,15 +38,19 @@ void Adc_Init(void)
 
 uint16_t Adc_ReadVBAT_mV(void)
 {
-  // Start ADC conversion
-  ADC_SoftwareStartConv(ADC1);
+  uint32_t nSumValue = 0;
+  for (uint8_t i = 0; i < ADC_SAMPLES; i++)
+  {
+    ADC_SoftwareStartConv(ADC1);
 
-  // Wait until conversion is finish
-  while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC));
+    // Wait until conversion is finish
+    while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC));
+    nSumValue += ADC_GetConversionValue(ADC1);
+  }
 
   // battery voltage = VBAT/4
-  uint16_t nValue = ADC_GetConversionValue(ADC1);
-  return (nValue * (uint32_t)REF_VOLTAGE_MV * 1000 / 4096) / 1000 * 4;
+  nSumValue /= ADC_SAMPLES;
+  return (nSumValue * (uint32_t)REF_VOLTAGE_MV * 1000 / 4096) / 1000 * 4;
 }
 
 void Adc_DeInit(void)

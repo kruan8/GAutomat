@@ -48,7 +48,7 @@ static const wnd_window_t wndStart =
 
 
 static uint32_t g_nStartTime;
-char            g_strVBAT[15];
+char            g_strVBAT[12];
 
 wnd_window_t* WndStart_GetTemplate()
 {
@@ -67,7 +67,8 @@ void WndStart_Init(bool bFirstInit)
   // measure and display VBAT
   Adc_Init();
   uint16_t mVBAT = Adc_ReadVBAT_mV();
-  snprintf(g_strVBAT, sizeof (g_strVBAT), "BAT: %d,%.2d(V)", mVBAT / 1000, (mVBAT / 10) % 100);
+  mVBAT = (mVBAT + 50) / 100;         // zaokrouhleni na desetiny
+  snprintf(g_strVBAT, sizeof (g_strVBAT), "BAT: %d,%.1dV", mVBAT / 10, mVBAT % 10);
   UG_TextboxSetText(WM_GetWnd(), start_tb_vbat, g_strVBAT);
 }
 
