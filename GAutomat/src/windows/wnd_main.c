@@ -78,6 +78,7 @@ void WndMain_Init(bool bFirstInit)
   g_nMeasureTimer = 0;
   g_nBlinkTimer = 0;
   memset (&g_lastData, 0, sizeof (g_lastData));
+  g_bRegulationResult = true;
 }
 
 void WndMain_Callback(UG_MESSAGE *msg)
