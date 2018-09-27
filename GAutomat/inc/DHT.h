@@ -9,6 +9,7 @@
 #define DHT_H_
 
 #include "stm32f4xx.h"
+#include <stdbool.h>
 
 typedef struct
 {

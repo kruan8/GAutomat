@@ -23,6 +23,17 @@
 #include "windows/wnd_start.h"
 
 /*
+ * HARDWARE using:
+ *
+ * ADC  - napeti baterie
+ * TIM9 - odmerovani komunikace DHT
+ * SPI1 - LCD
+ * DMA2_Stream5 - DMA prenos LCD
+ *
+ *
+ */
+
+/*
  * v0.0 - verze bez window manageru
  * v0.1 - prepracovana sprava oken (window manager)
  *        opraveno zpracovani kliknuti na LCD displej

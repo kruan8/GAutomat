@@ -27,16 +27,18 @@
 #define DHT11_NO_CONN 1
 #define DHT11_CS_ERROR 2
 
-typedef enum
-{
-  dht_in = 0,
-  dht_out,
-}dht_dir_e;
+#define DHT_LEVEL_COUNT        10         // minimalni pocet stejnych urovni (filtrace zakmitu)
 
-dht_error_e DHT_Read(dht_data_t* data);
-void DHT_Delay_us(uint16_t nDelay_us);
-void DHT_ResetTimer();
-uint16_t DHT_GetTimerCounter();
+#define LOW                    false
+#define HIGH                   true
+
+/* Function declaration */
+static dht_error_e DHT_Read(dht_data_t* data);
+static bool DHT_WaitForLevel(bool bLevel, uint8_t nMaxTime_us);
+static void DHT_Delay_us(uint16_t nDelay_us);
+static void DHT_ResetTimer();
+static uint16_t DHT_GetTimerCounter_us();
+
 
 void DHT_Init(uint32_t nPCLK_Frequency)
 {
@@ -45,9 +47,11 @@ void DHT_Init(uint32_t nPCLK_Frequency)
   GPIO_InitStructure.GPIO_Pin = DHT_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
   GPIO_Init(DHT_PORT, &GPIO_InitStructure);
+
+  DHT_PIN_HIGH;  // init line state
 
   RCC_APB2PeriphClockCmd(DHT_TIM_CLOCK, ENABLE);
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
@@ -58,58 +62,41 @@ void DHT_Init(uint32_t nPCLK_Frequency)
 
   TIM_TimeBaseInit(DHT_TIM, &TIM_TimeBaseStructure);
 
-//  DBGMCU->APB2FZ |= DBGMCU_TIM9_STOP;
+  DBGMCU->APB2FZ |= DBGMCU_TIM9_STOP;
   TIM_Cmd(DHT_TIM, ENABLE);
-
-  // first reading - deviced reset
-  dht_data_t data;
-  DHT_Read(&data);
 }
 
 dht_error_e DHT_Read(dht_data_t* data)
 {
   uint8_t buff[5];
 
-  /* Set pin low for min 18ms */
+  /* RESET - set pin low for min 18ms */
   DHT_PIN_LOW;
 #if (DHT22_AM2302 == 1)
-  DHT_Delay_us(5000);
+  DHT_Delay_us(5000 + 2000);
 #else
-  DHT_Delay_us(20000);
+  DHT_Delay_us(18000 + 2000);
 #endif
 
-  /* Set pin high to ~30 us */
   DHT_PIN_HIGH;
-  DHT_Delay_us(30);
+  DHT_Delay_us(5);
 
-  /* Wait 20us for acknowledge, low signal */
-  DHT_ResetTimer();
-  while (DHT_PORT->IDR & DHT_PIN)
+  /* Wait for LOW 20-40us acknowledge */
+  if (!DHT_WaitForLevel(LOW, 80))
   {
-    if (DHT_GetTimerCounter() > 80)
-    {
-      return DHT_CONNECTION_ERROR;
-    }
+    return DHT_CONNECTION_ERROR;
   }
 
-  /* Wait high signal, about 80-85us long (measured with logic analyzer) */
-  DHT_ResetTimer();
-  while ((DHT_PORT->IDR & DHT_PIN) == 0)
+  /* Wait for HIGH, about 80-85us */
+  if (!DHT_WaitForLevel(HIGH, 160))
   {
-    if (DHT_GetTimerCounter() > 85)
-    {
-      return DHT_WAITHIGH_ERROR;
-    }
+    return DHT_WAITHIGH_ERROR;
   }
 
-  /* Wait low signal, about 80-85us long (measured with logic analyzer) */
-  DHT_ResetTimer();
-  while (DHT_PORT->IDR & DHT_PIN)
+  /* Wait for LOW, about 80-85us */
+  if (!DHT_WaitForLevel(LOW, 160))
   {
-    if (DHT_GetTimerCounter() > 100)  // 85
-    {
-      return DHT_WAITLOW_ERROR;
-    }
+    return DHT_WAITLOW_ERROR;
   }
 
   /* Read 5 bytes */
@@ -119,27 +106,19 @@ dht_error_e DHT_Read(dht_data_t* data)
     for (uint8_t i = 8; i > 0; i--)
     {
       /* We are in low signal now, wait for high signal and measure time */
-      /* Wait high signal, about 57-63us long (measured with logic analyzer) */
-      DHT_ResetTimer();
-      while ((DHT_PORT->IDR & DHT_PIN) == 0)
+      /* Wait HIGH about 57-63us */
+      if (!DHT_WaitForLevel(HIGH, 100))
       {
-        if (DHT_GetTimerCounter() > 75)
-        {
-          return DHT_WAITHIGH_LOOP_ERROR;
-        }
+        return DHT_WAITHIGH_LOOP_ERROR;
       }
 
-      // High signal detected, start measure high signal, it can be 26us for 0 or 70us for 1
-      DHT_ResetTimer();
-      while (DHT_PORT->IDR & DHT_PIN)
+      // wait for LOW -> 26us for 0 or 70us for 1
+      if (!DHT_WaitForLevel(LOW, 140))
       {
-        if (DHT_GetTimerCounter() > 100)  //90
-        {
-          return DHT_WAITLOW_LOOP_ERROR;
-        }
+        return DHT_WAITLOW_LOOP_ERROR;
       }
 
-      if (DHT_GetTimerCounter() > 35)
+      if (DHT_GetTimerCounter_us() > 40)
       {
         buff[j] |= 1 << (i - 1);  // We read 1
       }
@@ -181,6 +160,7 @@ dht_error_e DHT_Read(dht_data_t* data)
     data->Temp = (buff[2]) * 10 + buff[3];
   }
 #endif
+
   return DHT_OK;
 }
 
@@ -189,12 +169,40 @@ dht_error_e DHT_GetData(dht_data_t* data)
   return DHT_Read(data);
 }
 
+bool DHT_WaitForLevel(bool bLevel, uint8_t nMaxTime_us)
+{
+  uint8_t nLevelCount = 0;
+
+  DHT_ResetTimer();
+  while (nLevelCount < DHT_LEVEL_COUNT)
+  {
+    if ((bool)(DHT_PORT->IDR & DHT_PIN) == bLevel)
+    {
+      nLevelCount++;
+    }
+    else
+    {
+      if (nLevelCount)
+      {
+        nLevelCount--;
+      }
+    }
+
+    if (DHT_GetTimerCounter_us() > nMaxTime_us)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 void DHT_ResetTimer()
 {
   DHT_TIM->EGR |= TIM_EGR_UG;  // counter reset
 }
 
-uint16_t DHT_GetTimerCounter()
+uint16_t DHT_GetTimerCounter_us()
 {
   return DHT_TIM->CNT;
 }
@@ -202,7 +210,7 @@ uint16_t DHT_GetTimerCounter()
 void DHT_Delay_us(uint16_t nDelay_us)
 {
   DHT_ResetTimer();
-  while (DHT_GetTimerCounter() < nDelay_us);
+  while (DHT_GetTimerCounter_us() < nDelay_us);
 }
 
 

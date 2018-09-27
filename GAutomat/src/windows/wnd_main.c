@@ -99,7 +99,6 @@ void WndMain_Timer_1ms()
   // odmerovani indikace behu
   g_nIndicationTimer++;
 
-
   // odmerovani intervalu regulacni smycky
   if (g_nMeasureTimer == 0)
   {

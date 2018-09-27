@@ -279,7 +279,7 @@ static void WM_SysTickCallback()
     ILI9163_LedOn(false);
   }
 
-  // blikani podsvicenim displeje pri neplatne konfiguraci
+  // blikani podsvicenim displeje pri neplatne konfiguraci nebo chybe
   if (g_nBlinkCounter)
   {
     if (g_nBlinkTimer)

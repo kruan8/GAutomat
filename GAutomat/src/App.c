@@ -72,11 +72,17 @@ bool App_RegulationLoop(app_measure_data_t* data)
 //  memset(data, 0, sizeof(app_measure_data_t));
 
   dht_data_t dht_data;
-  dht_error_e eErr = DHT_GetData(&dht_data);
-  if (eErr != DHT_OK)
+
+  // opakovane cteni, DHT pri 10s intervalu usne a 1. cteni je chybne
+  data->nError = err_dht;
+  for (uint8_t x = 0; x < 3; x++)
   {
-    // DHT device error
-    data->nError = err_dht;
+    dht_error_e eErr = DHT_GetData(&dht_data);
+    if (eErr == DHT_OK)
+    {
+      data->nError = err_none;
+      break;
+    }
   }
 
   dht_data.Temp /= 10;  // odstranit desetinny
