@@ -13,7 +13,9 @@
 #include "adc.h"
 #include <stdio.h>
 
-#define WND_START_DELAY_MS         2000
+#define WND_START_DELAY_MS         3000
+#define WND_START_X                  10
+#define WND_START_Y                 175
 
 typedef enum
 {
@@ -49,6 +51,8 @@ static const wnd_window_t wndStart =
 
 static uint32_t g_nStartTime;
 char            g_strVBAT[12];
+uint16_t        g_nCounterLine;
+uint16_t        g_nPixelX;
 
 wnd_window_t* WndStart_GetTemplate()
 {
@@ -62,14 +66,17 @@ void WndStart_Init(bool bFirstInit)
     AppData_SetConfigDefault();
   }
 
-  g_nStartTime = Timer_GetTicks_ms();
-
   // measure and display VBAT
   Adc_Init();
   uint16_t mVBAT = Adc_ReadVBAT_mV();
   mVBAT = (mVBAT + 50) / 100;         // zaokrouhleni na desetiny
   snprintf(g_strVBAT, sizeof (g_strVBAT), "BAT: %d,%.1dV", mVBAT / 10, mVBAT % 10);
   UG_TextboxSetText(WM_GetWnd(), start_tb_vbat, g_strVBAT);
+
+  g_nCounterLine = 0;
+  g_nPixelX = 0;
+
+  g_nStartTime = Timer_GetTicks_ms();
 }
 
 void WndStart_Callback(UG_MESSAGE *msg)
@@ -78,6 +85,16 @@ void WndStart_Callback(UG_MESSAGE *msg)
 
 void WndStart_Timer_1ms()
 {
+  g_nCounterLine++;
+  if (g_nCounterLine == 10)
+  {
+    g_nCounterLine = 0;
+    UG_DrawPixel(WND_START_X + g_nPixelX, WND_START_Y, C_CYAN);
+    UG_DrawPixel(WND_START_X + g_nPixelX, WND_START_Y + 1, C_CYAN);
+    UG_DrawPixel(WND_START_X + g_nPixelX, WND_START_Y + 2, C_CYAN);
+    g_nPixelX++;
+  }
+
   if (Timer_GetTicks_ms() > (g_nStartTime + WND_START_DELAY_MS))
   {
     if (AppData_GetLcdCalibrated())

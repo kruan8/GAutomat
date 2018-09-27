@@ -162,10 +162,6 @@ static bool WM_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
     UG_WindowSetTitleTextAlignment(&window, ALIGN_CENTER);
   }
 
-  pExeCallback = pWndTemplate->ExecCallBack;
-
-  pSysTickCb = pWndTemplate->TimerCallBack;
-
   uint8_t nTbIndex = 0;
   uint8_t nBtIndex = 0;
   for (uint8_t i = 0; i < nControls; ++i)
@@ -202,6 +198,9 @@ static bool WM_CreateWindow(wnd_window_t* pWndTemplate, bool bFirstInit)
 
   UG_WindowShow(&window);
   UG_Update();
+
+  pExeCallback = pWndTemplate->ExecCallBack;
+  pSysTickCb = pWndTemplate->TimerCallBack;
 
   // message loop
   while(!g_bClose)
