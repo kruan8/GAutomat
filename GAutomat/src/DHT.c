@@ -47,7 +47,7 @@ void DHT_Init(uint32_t nPCLK_Frequency)
   GPIO_InitStructure.GPIO_Pin = DHT_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
   GPIO_Init(DHT_PORT, &GPIO_InitStructure);
 

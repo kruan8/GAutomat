@@ -166,14 +166,13 @@ void WndMain_Exec()
   UG_TextboxSetText(WM_GetWnd(), main_tb_time, text);
 
   // vypis teploty a vlhkosti
-  if (data.nError != 1)
+  if (data.nError == err_none)
   {
     if (data.nTemperature != g_lastData.nTemperature)
     {
       text = UG_TextboxGetText(WM_GetWnd(), main_tb_temp);
       snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%2d\370C", data.nTemperature);
       UG_TextboxSetText(WM_GetWnd(), main_tb_temp, text);
-      g_lastData.nTemperature = data.nTemperature;
     }
 
     if (data.nHumidity != g_lastData.nHumidity)
@@ -181,10 +180,10 @@ void WndMain_Exec()
       text = UG_TextboxGetText(WM_GetWnd(), main_tb_hum);
       snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "%2d %%", data.nHumidity);
       UG_TextboxSetText(WM_GetWnd(), main_tb_hum, text);
-      g_lastData.nHumidity = data.nHumidity;
     }
   }
-  else if (data.nError == 1)   // chyba teploty
+
+  if (data.nError == err_dht)   // chyba teploty
   {
     text = UG_TextboxGetText(WM_GetWnd(), main_tb_temp);
     snprintf((char*)text, WND_TEXTBOX_TEXT_MAX, "--\370C");
@@ -201,12 +200,10 @@ void WndMain_Exec()
     if (data.bLight)
     {
       ILI9163_DrawMonochromeBitmap(23, 163, (BMPbpp1*) &BmpLight);
-      g_lastData.bLight = true;
     }
     else
     {
       UG_FillFrame(23, 163, 23 + 64, 163 + 64, C_BLACK);
-      g_lastData.bLight = false;
     }
   }
 
@@ -216,12 +213,10 @@ void WndMain_Exec()
     if (data.bHeat)
     {
       ILI9163_DrawMonochromeBitmap(126, 163, (BMPbpp1*) &BmpHeat);
-      g_lastData.bHeat = true;
     }
     else
     {
       UG_FillFrame(126, 163, 126 + 64, 163 + 64, C_BLACK);
-      g_lastData.bHeat = false;
     }
   }
 
@@ -231,15 +226,14 @@ void WndMain_Exec()
     if (data.bFan)
     {
       ILI9163_DrawMonochromeBitmap(223, 163, (BMPbpp1*) &BmpFan);
-      g_lastData.bFan = true;
     }
     else
     {
       UG_FillFrame(223, 163, 223 + 64, 163 + 64, C_BLACK);
-      g_lastData.bFan = false;
     }
   }
 
+  memcpy(&g_lastData, &data, sizeof (app_measure_data_t));
   g_bRegulation = false;
 }
 

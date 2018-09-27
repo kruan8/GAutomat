@@ -13,9 +13,15 @@
 #include "common.h"
 
 
+typedef enum
+{
+  err_none = 0,
+  err_dht,
+} app_errors_t;
+
 typedef struct
 {
-  uint8_t nError;              // chyba regulacni smycky
+  app_errors_t nError;         // chyba regulacni smycky
   uint8_t nHour;               // hodina RTC
   uint8_t nMin;                // minuta RTC
   uint8_t nTemperature;        // namerena teplota
@@ -24,12 +30,6 @@ typedef struct
   bool bHeat;                  // stav vyhrivani
   bool bFan;                   // stav vetraku
 } app_measure_data_t;
-
-typedef enum
-{
-  err_none = 0,
-  err_dht,
-}app_errors_t;
 
 void App_Init();
 bool App_RegulationLoop(app_measure_data_t* data);

@@ -74,7 +74,6 @@ bool App_RegulationLoop(app_measure_data_t* data)
   dht_data_t dht_data;
 
   // opakovane cteni, DHT pri 10s intervalu usne a 1. cteni je chybne
-  data->nError = err_dht;
   for (uint8_t x = 0; x < 3; x++)
   {
     dht_error_e eErr = DHT_GetData(&dht_data);
@@ -83,6 +82,10 @@ bool App_RegulationLoop(app_measure_data_t* data)
       data->nError = err_none;
       break;
     }
+
+    data->nError = err_dht;
+    data->nTemperature = 0;
+    data->nHumidity = 0;
   }
 
   dht_data.Temp /= 10;  // odstranit desetinny
@@ -152,5 +155,5 @@ bool App_RegulationLoop(app_measure_data_t* data)
 //    GPIO_GetPort(app_re_light)->BSRRL = GPIO_GetPin(app_re_light); // set (rele OFF)
   }
 
-  return (data->nError == DHT_OK) ? true : false;
+  return (data->nError == err_none) ? true : false;
 }
