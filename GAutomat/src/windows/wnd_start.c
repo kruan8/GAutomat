@@ -3,6 +3,14 @@
  *
  *  Created on: 23. 3. 2018
  *      Author: Priesol Vladimir
+ *
+ *      START okno:
+ *      - vypise nazev programu
+ *      - zmeri zobrazi napeti baterie,
+ *      - ceka 3 sekundy na click, jesli ma prejit do kalibrace LCD,
+ *      jinak prejde do MAIN window
+ *      - animuje prouzek pri odecitani casu
+ *
  */
 
 #include "windows/wnd_start.h"
@@ -44,15 +52,17 @@ static const wnd_window_t wndStart =
     WndStart_Init,
     WndStart_Callback,
     WndStart_Timer_1ms,
-    NULL,
+    WndStart_Exec,
     WndStart_ClickCallBack,
 };
 
 
-static uint32_t g_nStartTime;
-char            g_strVBAT[12];
-uint16_t        g_nCounterLine;
-uint16_t        g_nPixelX;
+static uint32_t g_nStartTime;     // ticks vytvoreni okna
+char            g_strVBAT[12];    // pamet pro ulozeni stringu napeti baterie
+
+bool            g_bDrawPixel;     // flag povoleni vykresleni dalsi sloupce prouzku
+uint16_t        g_nCounterColumn; // citac casu pro vykresleni dalsi sloupce prouzku
+uint16_t        g_nPixelX;        // index sloupce prouzku
 
 wnd_window_t* WndStart_GetTemplate()
 {
@@ -73,8 +83,9 @@ void WndStart_Init(bool bFirstInit)
   snprintf(g_strVBAT, sizeof (g_strVBAT), "BAT: %d,%.1dV", mVBAT / 10, mVBAT % 10);
   UG_TextboxSetText(WM_GetWnd(), start_tb_vbat, g_strVBAT);
 
-  g_nCounterLine = 0;
+  g_nCounterColumn = 0;
   g_nPixelX = 0;
+  g_bDrawPixel = false;
 
   g_nStartTime = Timer_GetTicks_ms();
 }
@@ -83,16 +94,27 @@ void WndStart_Callback(UG_MESSAGE *msg)
 {
 }
 
-void WndStart_Timer_1ms()
+void WndStart_Exec()
 {
-  g_nCounterLine++;
-  if (g_nCounterLine == 10)
+  // vykresli dalsi pixel v animovanem prouzku
+  if (g_bDrawPixel)
   {
-    g_nCounterLine = 0;
+    g_bDrawPixel = false;
     UG_DrawPixel(WND_START_X + g_nPixelX, WND_START_Y, C_CYAN);
     UG_DrawPixel(WND_START_X + g_nPixelX, WND_START_Y + 1, C_CYAN);
     UG_DrawPixel(WND_START_X + g_nPixelX, WND_START_Y + 2, C_CYAN);
     g_nPixelX++;
+  }
+}
+
+void WndStart_Timer_1ms()
+{
+  // je cas vykreslit dalsi pixel?
+  g_nCounterColumn++;
+  if (g_nCounterColumn == 10)
+  {
+    g_nCounterColumn = 0;
+    g_bDrawPixel = true;
   }
 
   if (Timer_GetTicks_ms() > (g_nStartTime + WND_START_DELAY_MS))
@@ -102,6 +124,7 @@ void WndStart_Timer_1ms()
       XPT2046_SetCalibrationMatrix(WndCalib_GetCoordinate(), AppData_GetCoordinatePointer());
     }
 
+    Adc_DeInit();
     WM_AddNewWindow(WndMain_GetTemplate());
     WM_CloseWindow();
   }

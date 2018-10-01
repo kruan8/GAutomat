@@ -15,6 +15,7 @@
 wnd_window_t* WndStart_GetTemplate();
 void WndStart_Init(bool bFirstInit);
 void WndStart_Callback(UG_MESSAGE *msg);
+void WndStart_Exec();
 void WndStart_Timer_1ms();
 void WndStart_ClickCallBack();
 
